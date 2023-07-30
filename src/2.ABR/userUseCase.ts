@@ -1,4 +1,4 @@
-import { UserValue, userSimpleData } from '../1.EBR/user.value';
+import { UserDTO, userSimpleData } from '../1.EBR/UserDTO';
 import UserRepository from './user.repository';
 
 export default class UserUsesCases {
@@ -10,7 +10,7 @@ export default class UserUsesCases {
     email,
     profile_image,
   }: userSimpleData) {
-    const userValue = new UserValue({ name, last_name, email, profile_image });
+    const userValue = new UserDTO({ name, last_name, email, profile_image });
     const userCreated = await this.userRepository.postNewUser(userValue);
     return userCreated;
   }
