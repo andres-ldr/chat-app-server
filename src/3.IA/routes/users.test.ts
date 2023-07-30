@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { app } from '../../4.F&D/app';
-import { userSimpleData } from '../../1.EBR/user.value';
+import { userSimpleData } from '../../1.EBR/UserDTO';
 
 describe('Users API', () => {
   describe('Test GET /users', () => {
