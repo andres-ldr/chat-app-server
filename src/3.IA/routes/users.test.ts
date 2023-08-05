@@ -5,6 +5,7 @@ import { userSimpleData } from '../../1.EBR/UserDTO';
 describe('Users API', () => {
   let id: number;
   let id2: number;
+  let chatId: string;
   const mockUser: userSimpleData = {
     name: 'John Doe',
     last_name: 'Perez',
@@ -75,6 +76,17 @@ describe('Users API', () => {
       const respond = await request(app)
         .post(`/v1/users/${id}/new_chat`)
         .send({ contactId: id2 })
+        .expect('Content-Type', /json/)
+        .expect(201)
+        .then((res) => (chatId = res.body.cid));
+    });
+  });
+
+  describe('TEST POST /users/:id/new_msg', () => {
+    test('should respond with 201  success msg sent', async () => {
+      const respond = await request(app)
+        .post(`/v1/users/${id}/send_msg`)
+        .send({ content: 'Hola', chat: `${chatId}` })
         .expect('Content-Type', /json/)
         .expect(201);
     });
