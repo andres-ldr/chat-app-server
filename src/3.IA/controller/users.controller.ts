@@ -54,4 +54,17 @@ export default class UserController {
     }
     return res.status(201).json(response);
   };
+
+  postNewChat = async (req: Request, res: Response, next: NextFunction) => {
+    const { uid } = req.params;
+    const { contactId } = req.body;
+    let newChat;
+    try {
+      newChat = await this.userUseCase.createNewChat(contactId, uid);
+    } catch (err) {
+      const error = new HttpError('Creating new chat failed, try again', 500);
+      return next(error);
+    }
+    return res.status(201).json(newChat);
+  };
 }
