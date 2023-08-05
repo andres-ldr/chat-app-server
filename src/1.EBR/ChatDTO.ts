@@ -1,7 +1,7 @@
 import { ChatEntity } from './chat.entity';
-import { MsgEntity } from './msg.entity';
 import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
+import MsgDTO from './MsgDTO';
 
 enum CHAT_TYPE {
   GROUP,
@@ -10,7 +10,7 @@ enum CHAT_TYPE {
 
 export default class ChatDTO implements ChatEntity {
   cid: string;
-  messages: MsgEntity[];
+  messages: MsgDTO[];
   creation_date: string;
   type: CHAT_TYPE;
   members: string[];
