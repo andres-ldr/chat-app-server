@@ -91,4 +91,14 @@ describe('Users API', () => {
         .expect(201);
     });
   });
+
+  describe('TEST GET /users/:id/chat', () => {
+    test('should respond with 200  success msg fetched', async () => {
+      const respond = await request(app)
+        .get(`/v1/users/${id}/chat`)
+        .send({ chatId })
+        .expect('Content-Type', /json/)
+        .expect(200);
+    });
+  });
 });
