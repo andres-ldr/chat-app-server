@@ -17,7 +17,7 @@ export class UserDTO implements UserEntity {
   email: string;
   contacts: string[];
   profile_image: string;
-  chats: ChatEntity[];
+  chats: string[];
   creation_date: string;
 
   constructor({ name, last_name, email, profile_image }: userSimpleData) {

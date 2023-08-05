@@ -6,6 +6,6 @@ export interface UserEntity {
   email: string;
   contacts: string[];
   profile_image: string;
-  chats: ChatEntity[];
+  chats: string[];
   creation_date: string;
 }
