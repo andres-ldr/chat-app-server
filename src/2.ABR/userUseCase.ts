@@ -1,5 +1,7 @@
 import ChatDTO from '../1.EBR/ChatDTO';
+import MsgDTO from '../1.EBR/MsgDTO';
 import { UserDTO, userSimpleData } from '../1.EBR/UserDTO';
+import { MSG_TYPE } from '../1.EBR/msg.entity';
 import UserRepository from './user.repository';
 
 export default class UserUsesCases {
@@ -37,5 +39,15 @@ export default class UserUsesCases {
     });
     const chatCreated = await this.userRepository.postNewChat(chatValue);
     return chatCreated;
+  }
+
+  public async sendMsg(content: string, sender: string, chat: string) {
+    const msgValue = new MsgDTO({
+      content,
+      sender,
+      type: MSG_TYPE.TEXT,
+    });
+    const msgSent = await this.userRepository.postNewMsg(msgValue, chat);
+    return msgSent;
   }
 }
