@@ -1,3 +1,4 @@
+import ChatDTO from '../1.EBR/ChatDTO';
 import { UserDTO, userSimpleData } from '../1.EBR/UserDTO';
 import UserRepository from './user.repository';
 
@@ -27,5 +28,14 @@ export default class UserUsesCases {
   public async addNewContact(uid: string, email: string) {
     const message = this.userRepository.postNewContact(uid, email);
     return message;
+  }
+
+  public async createNewChat(contactId: string, userId: string) {
+    const chatValue = new ChatDTO({
+      messages: [],
+      members: [contactId, userId],
+    });
+    const chatCreated = await this.userRepository.postNewChat(chatValue);
+    return chatCreated;
   }
 }
