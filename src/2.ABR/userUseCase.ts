@@ -50,4 +50,9 @@ export default class UserUsesCases {
     const msgSent = await this.userRepository.postNewMsg(msgValue, chat);
     return msgSent;
   }
+
+  public async getAllChatMsgs(chatId: string) {
+    const msgs = this.userRepository.fetchChatMsgs(chatId);
+    return msgs;
+  }
 }
