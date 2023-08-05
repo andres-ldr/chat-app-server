@@ -14,10 +14,18 @@ export default class UserUsesCases {
     const userCreated = await this.userRepository.postNewUser(userValue);
     return userCreated;
   }
-  public async findUserById() {}
+  public async findUserById(id: string) {
+    const resp: UserDTO = await this.userRepository.getUserById(id);
+    return resp;
+  }
 
   public async getAllUsers() {
-    const allUsers = this.userRepository.fetchAllUsers();
+    const allUsers: UserDTO[] = await this.userRepository.fetchAllUsers();
     return allUsers;
+  }
+
+  public async addNewContact(uid: string, email: string) {
+    const message = this.userRepository.postNewContact(uid, email);
+    return message;
   }
 }
