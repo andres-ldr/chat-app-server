@@ -1,4 +1,5 @@
 import ChatDTO from '../../1.EBR/ChatDTO';
+import MsgDTO from '../../1.EBR/MsgDTO';
 import { UserDTO } from '../../1.EBR/UserDTO';
 import { ChatEntity } from '../../1.EBR/chat.entity';
 import UserRepository from '../../2.ABR/user.repository';
@@ -7,6 +8,18 @@ const mockUsers: UserDTO[] = [];
 const mockChats: ChatDTO[] = [];
 export default class MockUserRespository implements UserRepository {
   constructor() {}
+  async postNewMsg(msg: MsgDTO, cid: string): Promise<MsgDTO> {
+    try {
+      const chat = mockChats.find((chat) => chat.cid === cid);
+      if (chat === undefined || chat === null) {
+        throw new Error();
+      }
+      chat.messages.push(msg);
+    } catch (err) {
+      throw new Error();
+    }
+    return msg;
+  }
   async postNewChat(chat: ChatDTO): Promise<ChatDTO> {
     try {
       mockChats.push(chat);
