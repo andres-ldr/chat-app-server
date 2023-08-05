@@ -13,3 +13,5 @@ const userController = new UserController(userUseCases);
 
 usersRouter.post('/', userController.postNewUser);
 usersRouter.get('/', userController.fetchAllUsers);
+usersRouter.get('/:uid', userController.fetchUserById);
+usersRouter.post('/:uid/new_contact', userController.postNewContact);
