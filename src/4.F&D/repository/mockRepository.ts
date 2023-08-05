@@ -8,6 +8,20 @@ const mockUsers: UserDTO[] = [];
 const mockChats: ChatDTO[] = [];
 export default class MockUserRespository implements UserRepository {
   constructor() {}
+  async fetchChatMsgs(chatId: string): Promise<MsgDTO[]> {
+    let chat;
+    let msgs;
+    try {
+      chat = mockChats.find((chat) => chat.cid === chatId);
+      if (chat === undefined || chat === null) {
+        throw new Error();
+      }
+      msgs = chat.messages;
+    } catch (err) {
+      throw new Error();
+    }
+    return msgs;
+  }
   async postNewMsg(msg: MsgDTO, cid: string): Promise<MsgDTO> {
     try {
       const chat = mockChats.find((chat) => chat.cid === cid);

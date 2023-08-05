@@ -9,4 +9,5 @@ export default interface UserRepository {
   postNewContact(userId: string, email: string): Promise<UserDTO>;
   postNewChat(chat: ChatDTO): Promise<ChatDTO>;
   postNewMsg(msg: MsgDTO, chatId: string): Promise<MsgDTO>;
+  fetchChatMsgs(chatId: string): Promise<MsgDTO[]>;
 }
