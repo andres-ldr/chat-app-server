@@ -1,10 +1,24 @@
+import ChatDTO from '../../1.EBR/ChatDTO';
 import { UserDTO } from '../../1.EBR/UserDTO';
+import { ChatEntity } from '../../1.EBR/chat.entity';
 import UserRepository from '../../2.ABR/user.repository';
 
 const mockUsers: UserDTO[] = [];
-
+const mockChats: ChatDTO[] = [];
 export default class MockUserRespository implements UserRepository {
   constructor() {}
+  async postNewChat(chat: ChatDTO): Promise<ChatDTO> {
+    try {
+      mockChats.push(chat);
+      chat.members.map(async (memberId) => {
+        const member = await this.getUserById(memberId);
+        member.chats.push(chat.cid);
+      });
+    } catch (err) {
+      throw new Error();
+    }
+    return chat;
+  }
   async postNewContact(userId: string, email: string): Promise<UserDTO> {
     let contact: UserDTO | undefined;
     let user: UserDTO | undefined;
