@@ -17,3 +17,4 @@ usersRouter.get('/:uid', userController.fetchUserById);
 usersRouter.post('/:uid/new_contact', userController.postNewContact);
 usersRouter.post('/:uid/new_chat', userController.postNewChat);
 usersRouter.post('/:uid/send_msg', userController.postNewMsg);
+usersRouter.get('/:uid/chat', userController.fetchChatMsgs);

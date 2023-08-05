@@ -78,7 +78,17 @@ export default class UserController {
       const error = new HttpError('Sending message failed, try again', 500);
       return next(error);
     }
-    console.log(msg);
     return res.status(201).json(msg);
+  };
+  fetchChatMsgs = async (req: Request, res: Response, next: NextFunction) => {
+    const { chatId } = req.body;
+    let msgs;
+    try {
+      msgs = await this.userUseCase.getAllChatMsgs(chatId);
+    } catch (err) {
+      const error = new HttpError('Fetch messages failed, try again', 500);
+      return next(error);
+    }
+    return res.status(200).json(msgs);
   };
 }
