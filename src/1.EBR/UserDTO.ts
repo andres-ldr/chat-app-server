@@ -7,6 +7,7 @@ export type userSimpleData = {
   name: string;
   last_name: string;
   email: string;
+  password: string;
   profile_image: string;
 };
 
@@ -15,19 +16,27 @@ export class UserDTO implements UserEntity {
   name: string;
   last_name: string;
   email: string;
-  contacts: string[];
+  password: string;
+  contacts: [];
   profile_image: string;
-  chats: string[];
+  chats: [];
   creation_date: string;
 
-  constructor({ name, last_name, email, profile_image }: userSimpleData) {
-    this.uid = uuidv4();
+  constructor({
+    name,
+    last_name,
+    email,
+    password,
+    profile_image,
+  }: userSimpleData) {
+    this.uid = '';
     this.name = name;
     this.last_name = last_name;
     this.email = email;
+    this.password = password;
     this.contacts = [];
     this.profile_image = profile_image;
     this.chats = [];
-    this.creation_date = moment().format('MMMM Do YYYY, h:mm:ss a');
+    this.creation_date = moment().format();
   }
 }

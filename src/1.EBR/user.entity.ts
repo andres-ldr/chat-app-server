@@ -4,8 +4,8 @@ export interface UserEntity {
   name: string;
   last_name: string;
   email: string;
-  contacts: string[];
+  contacts: [];
   profile_image: string;
-  chats: string[];
+  chats: [];
   creation_date: string;
 }
