@@ -1,9 +1,10 @@
-import ChatDTO from '../../1.EBR/ChatDTO';
-import MsgDTO from '../../1.EBR/MsgDTO';
-import { Prisma, PrismaClient } from '@prisma/client';
-import { UserDTO } from '../../1.EBR/UserDTO';
+import { PrismaClient } from '@prisma/client';
 import UserRepository from '../../2.ABR/user.repository';
 import bcrypt from 'bcrypt';
+import { UserEntity } from '../../1.EBR/user.entity';
+import { userResponseType } from '../../1.EBR/UserDTO';
+import { ChatEntity } from '../../1.EBR/chat.entity';
+import { MsgEntity } from '../../1.EBR/msg.entity';
 require('dotenv').config();
 
 export default class PostgresRepository implements UserRepository {
@@ -12,15 +13,19 @@ export default class PostgresRepository implements UserRepository {
   constructor() {
     this.prisma = new PrismaClient();
   }
+  async fetchAllChats(userId: string): Promise<ChatEntity[] | []> {
+    let AllChats;
+    try {
+      AllChats = await this.prisma.chat.findMany({
+        where: { members: { every: { uid: userId } } },
+      });
+    } catch (err) {
+      throw new Error();
+    }
+    return AllChats;
+  }
 
-  async getUserById(uuid: string): Promise<{
-    uid: string;
-    name: string;
-    last_name: string;
-    email: string;
-    profile_image: string;
-    creation_date: Date;
-  } | null> {
+  async getUserById(uuid: string): Promise<UserEntity | null> {
     let result;
     try {
       //this.userClient.$connect();
@@ -32,100 +37,144 @@ export default class PostgresRepository implements UserRepository {
     }
     return result;
   }
-  async postNewUser(user: UserDTO): Promise<{
-    uid: string;
-    name: string;
-    last_name: string;
-    email: string;
-    profile_image: string;
-    creation_date: Date;
-  } | null> {
-    const { name, last_name, email, password, profile_image } = user;
+  async postNewUser(user: UserEntity): Promise<userResponseType> {
+    const { name, lastName, email, password, profileImage } = user;
     let result;
-
     try {
       const hash = await bcrypt.hash(password, 10);
-
-      console.log(user);
       result = await this.prisma.user.create({
-        data: { name, last_name, email, password: `${hash}`, profile_image },
+        data: { name, lastName, email, password: `${hash}`, profileImage },
       });
-      console.log(result);
     } catch (err) {
+      console.log(err);
       throw new Error();
-    } finally {
-      //this.userClient.$disconnect();
     }
     return result;
   }
-  async fetchAllUsers(): Promise<
-    | {
-        uid: string;
-        name: string;
-        last_name: string;
-        email: string;
-        profile_image: string;
-        creation_date: Date;
-      }[]
-    | null
-  > {
+  async fetchAllContacts(uid: string): Promise<{}[]> {
     let result;
     try {
-      //this.userClient.$connect();
-      result = this.prisma.user.findMany();
+      result = await this.prisma.contact.findMany({ where: { authorId: uid } });
     } catch (err) {
       throw new Error();
-    } finally {
-      //this.userClient.$disconnect();
     }
     return result;
   }
   async postNewContact(
     userId: string,
+    alias: string,
     email: string
-  ): Promise<{
-    uid: string;
-    name: string;
-    last_name: string;
-    email: string;
-    profile_image: string;
-    creation_date: Date;
-  } | null> {
+  ): Promise<{ email: string; authorId: string; alias: string } | null> {
     let contact;
     let result;
     try {
-      //this.userClient.$connect();
       contact = await this.prisma.user.findFirst({
         where: { email },
       });
       const user = await this.getUserById(userId);
 
       if (!contact) {
-        return contact;
+        throw new Error();
       }
 
       if (!user) {
         throw new Error();
       }
 
-      const contactId = contact.uid;
+      const isContactInUser = await this.prisma.contact.count({
+        where: {
+          authorId: userId,
+          email,
+        },
+      });
+
+      if (isContactInUser) {
+        throw new Error();
+      }
+
       result = await this.prisma.contact.create({
-        data: { userId, contactId },
+        data: {
+          alias,
+          email,
+          authorId: userId,
+        },
       });
     } catch (err) {
       throw new Error();
-    } finally {
-      //this.userClient.$disconnect();
     }
-    return null;
+    return result;
   }
-  async postNewChat(chat: ChatDTO): Promise<ChatDTO> {
-    throw new Error('Method not implemented.');
+  async postNewChat(
+    alias: string,
+    participants: []
+  ): Promise<ChatEntity | null> {
+    let newChat;
+    let ids: string[] = [];
+
+    participants.forEach((obj: { uid: string }) => ids.push(obj.uid));
+
+    try {
+      const isChatExisting = await this.prisma.chat.count({
+        where: {
+          members: {
+            every: {
+              uid: {
+                in: ids,
+              },
+            },
+          },
+        },
+      });
+
+      if (isChatExisting > 0) {
+        throw new Error();
+      }
+
+      newChat = await this.prisma.chat.create({
+        data: {
+          alias,
+          members: {
+            connect: participants,
+          },
+        },
+      });
+    } catch (err) {
+      console.log(err);
+      throw new Error();
+    }
+    return newChat;
   }
-  async postNewMsg(msg: MsgDTO, chatId: string): Promise<MsgDTO> {
-    throw new Error('Method not implemented.');
+  async postNewMsg(
+    chatId: string,
+    content: string,
+    type: string,
+    senderId: string
+  ): Promise<MsgEntity | null> {
+    let newMsg;
+    try {
+      newMsg = await this.prisma.message.create({
+        data: {
+          chatId,
+          content,
+          type,
+          senderId,
+        },
+      });
+    } catch (err) {
+      throw new Error();
+    }
+    return newMsg;
   }
-  async fetchChatMsgs(chatId: string): Promise<MsgDTO[]> {
-    throw new Error('Method not implemented.');
+  async fetchChatMsgs(uid: string, chatId: string): Promise<MsgEntity[] | []> {
+    let msgs;
+    try {
+      msgs = await this.prisma.message.findMany({
+        where: { chatId, senderId: uid },
+      });
+      console.log(msgs);
+    } catch (err) {
+      throw new Error();
+    }
+    return msgs;
   }
 }
