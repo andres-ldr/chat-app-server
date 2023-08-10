@@ -1,96 +1,63 @@
 import { QueryResult } from 'pg';
 import ChatDTO from '../1.EBR/ChatDTO';
 import MsgDTO from '../1.EBR/MsgDTO';
-import { UserDTO, userSimpleData } from '../1.EBR/UserDTO';
-import { MSG_TYPE } from '../1.EBR/msg.entity';
+import { userResponseType, userSimpleData } from '../1.EBR/UserDTO';
 import UserRepository from './user.repository';
+import { UserEntity } from '../1.EBR/user.entity';
+import { ChatEntity } from '../1.EBR/chat.entity';
 
 export default class UserUsesCases {
   constructor(private readonly userRepository: UserRepository) {}
 
-  public async addNewUser({
-    name,
-    last_name,
-    email,
-    password,
-    profile_image,
-  }: userSimpleData) {
-    const userValue = new UserDTO({
-      name,
-      last_name,
-      email,
-      password,
-      profile_image,
-    });
-    const userCreated: {
-      uid: string;
-      name: string;
-      last_name: string;
-      email: string;
-      profile_image: string;
-      creation_date: Date;
-    } | null = await this.userRepository.postNewUser(userValue);
+  public async addNewUser(newUser: UserEntity) {
+    const userCreated: userResponseType = await this.userRepository.postNewUser(
+      newUser
+    );
     return userCreated;
   }
-  public async findUserById(id: string) {
-    const resp: {
-      uid: string;
-      name: string;
-      last_name: string;
-      email: string;
-      profile_image: string;
-      creation_date: Date;
-    } | null = await this.userRepository.getUserById(id);
-    return resp;
+  public async getAllChats(userId: string) {
+    return await this.userRepository.fetchAllChats(userId);
+  }
+  // public async findUserById(id: string) {
+  //   const resp: {
+  //     uid: string;
+  //     name: string;
+  //     lastName: string;
+  //     email: string;
+  //     password: string;
+  //     profileImage: string;
+  //     creationDate: Date;
+  //   } | null = await this.userRepository.getUserById(id);
+  //   return resp;
+  // }
+
+  public async getAllContacts(uid: string) {
+    return await this.userRepository.fetchAllContacts(uid);
   }
 
-  public async getAllUsers() {
-    const allUsers:
-      | {
-          uid: string;
-          name: string;
-          last_name: string;
-          email: string;
-          profile_image: string;
-          creation_date: Date;
-        }[]
-      | null = await this.userRepository.fetchAllUsers();
-    return allUsers;
+  public async addNewContact(uid: string, alias: string, email: string) {
+    return await this.userRepository.postNewContact(uid, alias, email);
   }
 
-  public async addNewContact(uid: string, email: string) {
-    const response: {
-      uid: string;
-      name: string;
-      last_name: string;
-      email: string;
-      profile_image: string;
-      creation_date: Date;
-    } | null = await this.userRepository.postNewContact(uid, email);
-    return response;
+  public async createNewChat(alias: string, members: []) {
+    return await this.userRepository.postNewChat(alias, members);
   }
 
-  public async createNewChat(contactId: string, userId: string) {
-    const chatValue = new ChatDTO({
-      messages: [],
-      members: [contactId, userId],
-    });
-    const chatCreated = await this.userRepository.postNewChat(chatValue);
-    return chatCreated;
-  }
-
-  public async sendMsg(content: string, sender: string, chat: string) {
-    const msgValue = new MsgDTO({
+  public async sendMsg(
+    chatId: string,
+    content: string,
+    type: string,
+    senderId: string
+  ) {
+    return await this.userRepository.postNewMsg(
+      chatId,
       content,
-      sender,
-      type: MSG_TYPE.TEXT,
-    });
-    const msgSent = await this.userRepository.postNewMsg(msgValue, chat);
-    return msgSent;
+      type,
+      senderId
+    );
   }
 
-  public async getAllChatMsgs(chatId: string) {
-    const msgs = this.userRepository.fetchChatMsgs(chatId);
-    return msgs;
+  public async getAllChatMsgs(uid: string, chatId: string) {
+    return this.userRepository.fetchChatMsgs(uid, chatId);
   }
 }
