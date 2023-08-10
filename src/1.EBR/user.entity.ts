@@ -1,10 +1,11 @@
 export interface UserEntity {
+  uid: string;
   name: string;
-  last_name: string;
+  lastName: string;
   email: string;
   password: string;
-  contacts: [];
-  profile_image: string;
-  chats: [];
-  creation_date: string;
+  //contacts: [];
+  profileImage: string;
+  //chats: [];
+  creationDate: Date;
 }

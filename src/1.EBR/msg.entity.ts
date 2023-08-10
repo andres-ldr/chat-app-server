@@ -7,7 +7,10 @@ export enum MSG_TYPE {
 }
 
 export interface MsgEntity {
-  type: MSG_TYPE;
+  mid: string;
+  chatId: string;
   content: string;
-  sender: string;
+  type: string;
+  creationDate: Date;
+  senderId: string;
 }
