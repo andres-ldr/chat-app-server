@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import UserRepository from '../../2.ABR/user.repository';
 import bcrypt from 'bcrypt';
 import { UserEntity } from '../../1.EBR/user.entity';
-import { userResponseType } from '../../1.EBR/UserDTO';
+import { userResponseType } from '../../1.EBR/Types';
 import { ChatEntity } from '../../1.EBR/chat.entity';
 import { MsgEntity } from '../../1.EBR/msg.entity';
 require('dotenv').config();

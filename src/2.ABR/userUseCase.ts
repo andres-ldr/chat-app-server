@@ -1,7 +1,7 @@
 import { QueryResult } from 'pg';
 import ChatDTO from '../1.EBR/ChatDTO';
 import MsgDTO from '../1.EBR/MsgDTO';
-import { userResponseType, userSimpleData } from '../1.EBR/UserDTO';
+import { userResponseType, userSimpleData } from '../1.EBR/Types';
 import UserRepository from './user.repository';
 import { UserEntity } from '../1.EBR/user.entity';
 import { ChatEntity } from '../1.EBR/chat.entity';

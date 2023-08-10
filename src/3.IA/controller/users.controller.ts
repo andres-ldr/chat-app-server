@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import UserUsesCases from '../../2.ABR/userUseCase';
 import HttpError from '../../4.F&D/models/HttpErrors';
-import { userResponseType } from '../../1.EBR/UserDTO';
+import { userResponseType } from '../../1.EBR/Types';
 import { Chat } from '@prisma/client';
 
 export default class UserController {

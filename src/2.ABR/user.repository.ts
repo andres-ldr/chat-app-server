@@ -2,7 +2,7 @@ import { QueryResult } from 'pg';
 import ChatDTO from '../1.EBR/ChatDTO';
 import MsgDTO from '../1.EBR/MsgDTO';
 import { UserEntity } from '../1.EBR/user.entity';
-import { userResponseType } from '../1.EBR/UserDTO';
+import { userResponseType } from '../1.EBR/Types';
 import { ChatEntity } from '../1.EBR/chat.entity';
 import { MsgEntity } from '../1.EBR/msg.entity';
 
