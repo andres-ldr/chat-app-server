@@ -11,16 +11,41 @@ datasource db {
 }
 
 model User {
-  uid           String   @id @default(uuid()) @db.Uuid
-  name          String   @db.VarChar(30)
-  last_name     String   @db.VarChar(50)
-  email         String   @unique @db.VarChar(50)
-  password      String   @db.VarChar(100)
-  profile_image String   @db.VarChar(50)
-  creation_date DateTime @default(now()) @db.Timestamptz()
+  uid          String    @id @default(uuid()) @db.Uuid
+  name         String    @db.VarChar(30)
+  lastName     String    @db.VarChar(50)
+  email        String    @unique @db.VarChar(50)
+  password     String    @db.VarChar(100)
+  profileImage String    @db.VarChar(50)
+  creationDate DateTime  @default(now()) @db.Timestamptz()
+  contact      Contact[]
+  chats        Chat[]
+  messages     Message[]
 }
 
 model Contact {
-  userId    String @id @db.Uuid
-  contactId String @db.Uuid
+  contactId String @id @default(uuid()) @db.Uuid
+  email     String @db.VarChar(50)
+  author    User   @relation(fields: [authorId], references: [uid])
+  authorId  String @db.Uuid
+  alias     String @db.VarChar(20)
+}
+
+model Chat {
+  cid          String    @id @default(uuid()) @db.Uuid
+  alias        String?   @db.VarChar(30)
+  creationDate DateTime  @default(now()) @db.Timestamptz()
+  members      User[]
+  messages     Message[]
+}
+
+model Message {
+  mid          String   @id @default(uuid()) @db.Uuid
+  chat         Chat     @relation(fields: [chatId], references: [cid])
+  chatId       String   @db.Uuid
+  content      String   @db.Text
+  type         String   @db.VarChar(20)
+  creationDate DateTime @default(now()) @db.Timestamptz()
+  sender       User     @relation(fields: [senderId], references: [uid])
+  senderId     String   @db.Uuid
 }
