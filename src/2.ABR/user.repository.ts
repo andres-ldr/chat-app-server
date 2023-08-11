@@ -21,8 +21,8 @@ export default interface UserRepository {
     sender: string
   ): Promise<MsgEntity | null>;
   fetchChatMsgs(uid: string, chatId: string): Promise<MsgEntity[] | []>;
-  userExists(uid: string): void;
-  emailExists(email: string): Promise<boolean>;
-  contactExists(authorId: string, email: string): void;
-  lookUpForExistingChat(alias: string, participants: []): void;
+  userExists(uid: string): Promise<userResponseType>;
+  emailExists(email: string): Promise<userResponseType>;
+  contactExists(authorId: string, email: string): Promise<{} | null>;
+  lookUpForExistingChat(alias: string, participants: []): Promise<void>;
 }
