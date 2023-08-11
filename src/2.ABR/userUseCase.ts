@@ -1,10 +1,7 @@
-import { QueryResult } from 'pg';
-import ChatDTO from '../1.EBR/ChatDTO';
-import MsgDTO from '../1.EBR/MsgDTO';
-import { userResponseType, userSimpleData } from '../1.EBR/Types';
+import { userResponseType } from '../1.EBR/Types';
 import UserRepository from './user.repository';
 import { UserEntity } from '../1.EBR/user.entity';
-import { ChatEntity } from '../1.EBR/chat.entity';
+import BaseError from '../Utils/BaseError';
 
 export default class UserUsesCases {
   constructor(private readonly userRepository: UserRepository) {}
@@ -40,6 +37,18 @@ export default class UserUsesCases {
   }
 
   public async createNewChat(alias: string, members: []) {
+    let num_members: number = members.length;
+
+    if (num_members < 2) {
+      throw new BaseError('A chat must have at least 2 members', 400);
+    }
+    if (num_members === 2 && alias !== undefined && alias !== null) {
+      throw new BaseError('A normal chat does not require an alias', 400);
+    }
+    if (num_members > 2 && (alias === undefined || alias === null)) {
+      throw new BaseError('A group must have an alias', 400);
+    }
+
     return await this.userRepository.postNewChat(alias, members);
   }
 
