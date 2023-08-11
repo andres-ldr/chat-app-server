@@ -5,6 +5,7 @@ import { UserEntity } from '../../1.EBR/user.entity';
 import { userResponseType } from '../../1.EBR/Types';
 import { ChatEntity } from '../../1.EBR/chat.entity';
 import { MsgEntity } from '../../1.EBR/msg.entity';
+import BaseError from '../../Utils/BaseError';
 require('dotenv').config();
 
 export default class PostgresRepository implements UserRepository {
@@ -13,14 +14,82 @@ export default class PostgresRepository implements UserRepository {
   constructor() {
     this.prisma = new PrismaClient();
   }
+
+  async lookUpForExistingChat(alias: string, participants: []) {
+    let ids: string[] = [];
+    try {
+      participants.forEach((obj: { uid: string }) => ids.push(obj.uid));
+
+      let isChatExisting = await this.prisma.chat.findFirst({
+        where: {
+          AND: [
+            { alias: { equals: alias } },
+            {
+              members: {
+                every: {
+                  uid: {
+                    in: ids,
+                  },
+                },
+              },
+            },
+          ],
+        },
+      });
+
+      if (isChatExisting) {
+        throw new BaseError('Chat or group already exists', 400);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+  async contactExists(authorId: string, email: string) {
+    try {
+      let count = await this.prisma.contact.count({
+        where: {
+          authorId,
+          email,
+        },
+      });
+      if (count > 0) {
+        throw new BaseError('Contact already exists', 404);
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+  async emailExists(email: string): Promise<boolean> {
+    let res;
+
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (user) {
+      res = true;
+    } else {
+      res = false;
+    }
+
+    return res;
+  }
+  async userExists(uid: string) {
+    try {
+      await this.prisma.user.findUniqueOrThrow({ where: { uid } });
+    } catch (err) {
+      throw new BaseError('No user found', 404);
+    }
+  }
   async fetchAllChats(userId: string): Promise<ChatEntity[] | []> {
     let AllChats;
     try {
+      await this.userExists(userId);
       AllChats = await this.prisma.chat.findMany({
         where: { members: { every: { uid: userId } } },
       });
     } catch (err) {
-      throw new Error();
+      throw new BaseError(`${err}`, 400);
     }
     return AllChats;
   }
@@ -28,12 +97,12 @@ export default class PostgresRepository implements UserRepository {
   async getUserById(uuid: string): Promise<UserEntity | null> {
     let result;
     try {
-      //this.userClient.$connect();
       result = this.prisma.user.findUnique({ where: { uid: `${uuid}` } });
+      if (result === undefined) {
+        throw new BaseError('No user found', 404);
+      }
     } catch (err) {
-      throw new Error();
-    } finally {
-      //this.userClient.$disconnect();
+      throw err;
     }
     return result;
   }
@@ -41,13 +110,16 @@ export default class PostgresRepository implements UserRepository {
     const { name, lastName, email, password, profileImage } = user;
     let result;
     try {
+      if (await this.emailExists(email)) {
+        throw new BaseError('No email found', 404);
+      }
+
       const hash = await bcrypt.hash(password, 10);
       result = await this.prisma.user.create({
         data: { name, lastName, email, password: `${hash}`, profileImage },
       });
     } catch (err) {
-      console.log(err);
-      throw new Error();
+      throw err;
     }
     return result;
   }
@@ -56,7 +128,7 @@ export default class PostgresRepository implements UserRepository {
     try {
       result = await this.prisma.contact.findMany({ where: { authorId: uid } });
     } catch (err) {
-      throw new Error();
+      throw err;
     }
     return result;
   }
@@ -65,33 +137,14 @@ export default class PostgresRepository implements UserRepository {
     alias: string,
     email: string
   ): Promise<{ email: string; authorId: string; alias: string } | null> {
-    let contact;
     let result;
+
+    await this.userExists(userId);
+    if (!(await this.emailExists(email))) {
+      throw new BaseError('No email found', 404);
+    }
+    await this.contactExists(userId, email);
     try {
-      contact = await this.prisma.user.findFirst({
-        where: { email },
-      });
-      const user = await this.getUserById(userId);
-
-      if (!contact) {
-        throw new Error();
-      }
-
-      if (!user) {
-        throw new Error();
-      }
-
-      const isContactInUser = await this.prisma.contact.count({
-        where: {
-          authorId: userId,
-          email,
-        },
-      });
-
-      if (isContactInUser) {
-        throw new Error();
-      }
-
       result = await this.prisma.contact.create({
         data: {
           alias,
@@ -100,8 +153,9 @@ export default class PostgresRepository implements UserRepository {
         },
       });
     } catch (err) {
-      throw new Error();
+      throw err;
     }
+
     return result;
   }
   async postNewChat(
@@ -109,26 +163,9 @@ export default class PostgresRepository implements UserRepository {
     participants: []
   ): Promise<ChatEntity | null> {
     let newChat;
-    let ids: string[] = [];
-
-    participants.forEach((obj: { uid: string }) => ids.push(obj.uid));
 
     try {
-      const isChatExisting = await this.prisma.chat.count({
-        where: {
-          members: {
-            every: {
-              uid: {
-                in: ids,
-              },
-            },
-          },
-        },
-      });
-
-      if (isChatExisting > 0) {
-        throw new Error();
-      }
+      await this.lookUpForExistingChat(alias, participants);
 
       newChat = await this.prisma.chat.create({
         data: {
@@ -139,8 +176,7 @@ export default class PostgresRepository implements UserRepository {
         },
       });
     } catch (err) {
-      console.log(err);
-      throw new Error();
+      throw err;
     }
     return newChat;
   }
@@ -161,7 +197,7 @@ export default class PostgresRepository implements UserRepository {
         },
       });
     } catch (err) {
-      throw new Error();
+      throw err;
     }
     return newMsg;
   }
@@ -171,9 +207,8 @@ export default class PostgresRepository implements UserRepository {
       msgs = await this.prisma.message.findMany({
         where: { chatId, senderId: uid },
       });
-      console.log(msgs);
     } catch (err) {
-      throw new Error();
+      throw err;
     }
     return msgs;
   }
