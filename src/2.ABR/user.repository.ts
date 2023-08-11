@@ -1,6 +1,3 @@
-import { QueryResult } from 'pg';
-import ChatDTO from '../1.EBR/ChatDTO';
-import MsgDTO from '../1.EBR/MsgDTO';
 import { UserEntity } from '../1.EBR/user.entity';
 import { userResponseType } from '../1.EBR/Types';
 import { ChatEntity } from '../1.EBR/chat.entity';
@@ -24,4 +21,8 @@ export default interface UserRepository {
     sender: string
   ): Promise<MsgEntity | null>;
   fetchChatMsgs(uid: string, chatId: string): Promise<MsgEntity[] | []>;
+  userExists(uid: string): void;
+  emailExists(email: string): Promise<boolean>;
+  contactExists(authorId: string, email: string): void;
+  lookUpForExistingChat(alias: string, participants: []): void;
 }
