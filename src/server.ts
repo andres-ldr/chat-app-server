@@ -8,6 +8,12 @@ const options = {
   key: fs.readFileSync('credentials/key.pem'),
   cert: fs.readFileSync('credentials/cert.pem'),
 };
+declare module 'express-session' {
+  interface SessionData {
+    passport: { user: string };
+    messages: string;
+  }
+}
 
 const server: https.Server = https.createServer(options, app);
 
