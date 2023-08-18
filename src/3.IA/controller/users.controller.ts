@@ -1,82 +1,36 @@
 import { Request, Response, NextFunction } from 'express';
 import UserUsesCases from '../../2.ABR/userUseCase';
-import { userResponseType } from '../../1.EBR/Types';
 import { Chat } from '@prisma/client';
 import BaseError from '../../Utils/BaseError';
 import { HttpStatusCode } from '../../Utils/httpCodes';
+import session from 'express-session';
+import passport from 'passport';
 
 export default class UserController {
   constructor(private userUseCase: UserUsesCases) {}
-  // fetchUserById = async (
-  //   { params }: Request,
-  //   res: Response,
-  //   next: NextFunction
-  // ) => {
-  //   const { uid } = params;
-  //   let user;
-  //   try {
-  //     user = await this.userUseCase.findUserById(uid);
-  //   } catch (err) {
-  //     const error = new HttpError('Creating contact failed, try again', 500);
-  //     return next(error);
-  //   }
-  //   return res.status(200).json(user);
-  // };
-
-  postLogIn = async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password } = req.body;
-
-    const { token } = req.cookies;
-
-    try {
-      if (token) {
-        throw new BaseError('Already Authenticated', 400);
-      }
-
-      const { userAuthLimited, tokenGen } = await this.userUseCase.authUser(
-        email,
-        password
-      );
-
-      return res
-        .cookie('token', tokenGen, {
-          maxAge: 1000 * 60 * 60,
-          httpOnly: true,
-          secure: true,
-          sameSite: 'lax',
-        })
-        .status(200)
-        .json(userAuthLimited);
-    } catch (err) {
-      return next(err);
-    }
-  };
 
   postNewUser = async (req: Request, res: Response, next: NextFunction) => {
-    let userAuthLimited, tokenGen, result;
-    try {
-      result = await this.userUseCase.addNewUser(req.body);
+    let userAuthLimited;
 
-      userAuthLimited = result.userAuthLimited;
-      tokenGen = result.tokenGen;
+    try {
+      const { name, email, profileImage } = await this.userUseCase.addNewUser(
+        req.body
+      );
+      userAuthLimited = { name, email, profileImage };
     } catch (err) {
       return next(err);
     }
-    return res
-      .cookie('token', tokenGen, {
-        maxAge: 1000 * 60 * 60,
-        httpOnly: true,
-        secure: true,
-        sameSite: 'lax',
-      })
-      .status(201)
-      .json(userAuthLimited);
+    return res.status(201).json(userAuthLimited);
   };
 
   fetchChats = async (req: Request, res: Response, next: NextFunction) => {
-    const uid = res.locals.uid;
     let chats: Chat[] | [];
     try {
+      const uid = req.session.passport?.user;
+
+      if (!uid) {
+        throw new BaseError('No user id', HttpStatusCode.BAD_REQUEST);
+      }
       chats = await this.userUseCase.getAllChats(uid);
     } catch (err) {
       return next(err);
@@ -89,9 +43,13 @@ export default class UserController {
     res: Response,
     next: NextFunction
   ) => {
-    const uid = res.locals.uid;
     let users;
     try {
+      const uid = req.session.passport?.user;
+
+      if (!uid) {
+        throw new BaseError('No author id', HttpStatusCode.BAD_REQUEST);
+      }
       users = await this.userUseCase.getAllContacts(uid);
     } catch (err) {
       return next(err);
@@ -101,9 +59,14 @@ export default class UserController {
 
   postNewContact = async (req: Request, res: Response, next: NextFunction) => {
     const { alias, email } = req.body;
-    const authorId = res.locals.uid;
+    let authorId;
     let contactCreated;
     try {
+      authorId = req.session.passport?.user;
+
+      if (!authorId) {
+        throw new BaseError('No author id', HttpStatusCode.BAD_REQUEST);
+      }
       contactCreated = await this.userUseCase.addNewContact(
         authorId,
         alias,
@@ -120,7 +83,13 @@ export default class UserController {
     let newChat;
 
     try {
-      members.push({ uid: res.locals.uid });
+      const creatorId = req.session.passport?.user;
+
+      if (!creatorId) {
+        throw new BaseError('No author id', HttpStatusCode.BAD_REQUEST);
+      }
+
+      members.push({ uid: creatorId });
       newChat = await this.userUseCase.createNewChat(
         alias,
         members,
@@ -134,9 +103,13 @@ export default class UserController {
 
   postNewMsg = async (req: Request, res: Response, next: NextFunction) => {
     const { chatId, content, type } = req.body;
-    const senderId = res.locals.uid;
     let msg;
     try {
+      const senderId = req.session.passport?.user;
+
+      if (!senderId) {
+        throw new BaseError('No sender id', HttpStatusCode.BAD_REQUEST);
+      }
       msg = await this.userUseCase.sendMsg(chatId, content, type, senderId);
     } catch (err) {
       return next(err);
@@ -146,9 +119,13 @@ export default class UserController {
 
   fetchChatMsgs = async (req: Request, res: Response, next: NextFunction) => {
     const { chatId } = req.body;
-    const uid = res.locals.uid;
     let msgs;
     try {
+      const uid = req.session.passport?.user;
+
+      if (!uid) {
+        throw new BaseError('No user id', HttpStatusCode.BAD_REQUEST);
+      }
       msgs = await this.userUseCase.getAllChatMsgs(uid, chatId);
     } catch (err) {
       return next(err);
@@ -156,28 +133,17 @@ export default class UserController {
     return res.status(200).json(msgs);
   };
 
-  postLogOut = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      res.clearCookie('token');
-    } catch (error) {
-      throw new BaseError(`${error}`, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
-    return res.status(200).json({ message: 'Deleted cookie' });
-  };
-
   checkAuth = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { token } = req.cookies;
-      if (!token) {
-        throw new BaseError('Authentication failed', 401);
+      if (req.isAuthenticated()) {
+        return next();
       }
-      const { uid } = this.userUseCase.checkAuth(token);
-      res.locals.uid = uid;
-      next();
-    } catch (err) {
-      let error = err as BaseError;
-
-      throw new BaseError(`${error}`, error.code);
+    } catch (error) {
+      throw new BaseError(
+        'Authentication error',
+        HttpStatusCode.INTERNAL_SERVER_ERROR
+      );
     }
+    return res.status(400).json({ message: 'Authentication failed' });
   };
 }
