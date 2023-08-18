@@ -7,34 +7,21 @@ import { MsgEntity } from '../../1.EBR/msg.entity';
 import BaseError from '../../Utils/BaseError';
 import { HttpStatusCode } from '../../Utils/httpCodes';
 import ContactEntity from '../../1.EBR/Contact.entity';
+import { Pool } from 'pg';
 require('dotenv').config();
 
 export default class PostgresRepository implements UserRepository {
-  prisma;
-
+  readonly prisma;
+  readonly pool;
   constructor() {
     this.prisma = new PrismaClient();
-  }
-  async authenticateUser(email: string, password: string): Promise<UserEntity> {
-    try {
-      const user = await this.emailExists(email);
-
-      if (!user) {
-        throw new BaseError('User not found by mail', HttpStatusCode.NOT_FOUND);
-      }
-
-      const isPasswordCorrect = await bcrypt.compare(password, user.password);
-
-      if (!isPasswordCorrect) {
-        throw new BaseError(
-          'Password or email are wrong',
-          HttpStatusCode.UNAUTHORIZED
-        );
-      }
-      return user;
-    } catch (err) {
-      throw err;
-    }
+    this.pool = new Pool({
+      user: `${process.env.POSTGRES_USER}`,
+      password: `${process.env.POSTGRES_PASSWORD}`,
+      host: `${process.env.POSTGRES_HOST}`,
+      port: Number(process.env.POSTGRES_PORT),
+      database: `${process.env.POSTGRES_DB}`,
+    });
   }
 
   async lookUpForExistingChat(alias: string | null, participants: []) {
@@ -132,7 +119,7 @@ export default class PostgresRepository implements UserRepository {
     let result;
     try {
       if (await this.emailExists(email)) {
-        throw new BaseError('User not found', HttpStatusCode.BAD_REQUEST);
+        throw new BaseError('User already exists', HttpStatusCode.BAD_REQUEST);
       }
 
       const hash = await bcrypt.hash(password, 10);
@@ -173,7 +160,7 @@ export default class PostgresRepository implements UserRepository {
     let contactCreated;
 
     try {
-      if (await this.emailExists(email)) {
+      if (!(await this.emailExists(email))) {
         throw new BaseError('User not found', HttpStatusCode.NOT_FOUND);
       }
 

@@ -30,5 +30,4 @@ export default interface UserRepository {
   emailExists(email: string): Promise<UserEntity | null>;
   contactExists(authorId: string, email: string): Promise<{} | null>;
   lookUpForExistingChat(alias: string, participants: []): Promise<void>;
-  authenticateUser(email: string, password: string): Promise<UserEntity>;
 }
