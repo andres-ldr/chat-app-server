@@ -5,7 +5,7 @@ export interface UserEntity {
   email: string;
   password: string;
   //contacts: [];
-  profileImage: string;
+  profileImage: string | null;
   //chats: [];
   creationDate: Date;
 }
