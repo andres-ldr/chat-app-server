@@ -8,8 +8,14 @@ import ErrorHandler from './middleware/ErrorHandler';
 export const app = express();
 
 app.use(helmet());
-app.use(cors());
-app.use(json());
+app.use(json({ limit: '200mb' }));
+
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+  })
+);
 
 app.use('/v1', api);
 
