@@ -10,7 +10,7 @@ export default class UserUsesCases {
       uid: string;
       name: string;
       email: string;
-      profileImage: string;
+      profileImage: string | null;
     };
 
     const { uid, name, email, profileImage } =
