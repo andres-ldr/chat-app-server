@@ -1,11 +1,12 @@
-import { Router } from 'express';
-import UserUsesCases from '../../2.ABR/userUseCase';
-import UserController from '../controller/users.controller';
 import PostgresRepository from '../../4.F&D/repository/postgresRepository';
-import session from 'express-session';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
+import { Request, Response, NextFunction, Router } from 'express';
+import fileUploader from '../../4.F&D/middleware/fileUploader';
+import initPassport from '../../4.F&D/config/passport-config';
+import UserController from '../controller/users.controller';
+import UserUsesCases from '../../2.ABR/userUseCase';
+import session from 'express-session';
 import passport from 'passport';
-import initPassport from '../../4.F&D/passport-config';
 
 export const usersRouter = Router();
 
@@ -15,6 +16,7 @@ const userUseCases = new UserUsesCases(postgresRepository);
 
 const userController = new UserController(userUseCases);
 
+//usersRouter.set('trust proxy', 1) // trust first proxy
 initPassport(passport, postgresRepository);
 
 usersRouter.use(
@@ -28,28 +30,27 @@ usersRouter.use(
       dbRecordIdFunction: undefined,
     }),
     cookie: {
-      secure: true,
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60,
-      sameSite: 'lax',
+      secure: false, //process.env.NODE_ENV === 'production',
+      httpOnly: false,
+      maxAge: 3600000,
+      sameSite: 'lax', // revisar
     },
   })
 );
+
 usersRouter.use(passport.initialize());
 usersRouter.use(passport.session());
 
-usersRouter.post('/new_user', userController.postNewUser);
+usersRouter.post('/new_user', fileUploader, userController.postNewUser);
 usersRouter.post(
   '/login',
-  passport.authenticate('local', {
-    successMessage: true,
-    failureMessage: true,
-  }),
-  (req, res, next) => {
-    //req.session.messages
-    res.status(200).json({ message: 'Login succesful' });
+  passport.authenticate('local'),
+  (req: Request, res: Response, next: NextFunction) => {
+    return res.status(200).json(req.user);
   }
 );
+
+usersRouter.use(userController.checkAuth);
 usersRouter.delete('/logout', (req, res, next) => {
   req.logout((err) => {
     try {
@@ -60,10 +61,10 @@ usersRouter.delete('/logout', (req, res, next) => {
   });
   return res.status(200).json({ message: 'Successful log out' });
 });
-usersRouter.use(userController.checkAuth);
 usersRouter.post('/new_contact', userController.postNewContact);
-usersRouter.post('/new_chat', userController.postNewChat);
+usersRouter.post('/chat_by_members', userController.fetchChatByMembers);
+usersRouter.post('/chatById', userController.getChatById);
 usersRouter.get('/chats', userController.fetchChats);
 usersRouter.get('/contacts', userController.fetchAllContacts);
 usersRouter.post('/send_msg', userController.postNewMsg);
-usersRouter.get('/chat', userController.fetchChatMsgs);
+//usersRouter.post('/chat', userController.fetchChatMsgs);
