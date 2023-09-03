@@ -32,17 +32,19 @@ model User {
 }
 
 model Contact {
-  contactId String @id @default(uuid()) @db.Uuid
-  email     String @db.VarChar(50)
-  author    User   @relation(fields: [authorId], references: [uid])
-  authorId  String @db.Uuid
-  alias     String @db.VarChar(20)
+  contactId    String  @id @default(uuid()) @db.Uuid
+  email        String  @db.VarChar(50)
+  author       User    @relation(fields: [authorId], references: [uid])
+  authorId     String  @db.Uuid
+  alias        String  @db.VarChar(20)
+  profileImage String? @db.VarChar(100)
 }
 
 model Chat {
   cid          String    @id @default(uuid()) @db.Uuid
   alias        String?   @db.VarChar(50)
   creationDate DateTime  @default(now()) @db.Timestamptz()
+  chatImage    String?   @db.VarChar(100)
   messages     Message[]
   members      User[]    @relation(name: "members")
   admins       User[]    @relation(name: "admins")
