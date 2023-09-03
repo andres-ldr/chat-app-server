@@ -1,30 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
-import UserUsesCases from '../../2.ABR/userUseCase';
-import { Chat } from '@prisma/client';
-import BaseError from '../../Utils/BaseError';
 import { HttpStatusCode } from '../../Utils/httpCodes';
-import session from 'express-session';
-import passport from 'passport';
+import UserUsesCases from '../../2.ABR/userUseCase';
+import BaseError from '../../Utils/BaseError';
 
 export default class UserController {
   constructor(private userUseCase: UserUsesCases) {}
 
   postNewUser = async (req: Request, res: Response, next: NextFunction) => {
-    let userAuthLimited;
-
     try {
-      const { name, email, profileImage } = await this.userUseCase.addNewUser(
-        req.body
-      );
-      userAuthLimited = { name, email, profileImage };
+      const newUser = req.body;
+      newUser.profileImage =
+        req.file?.path === undefined ? null : req.file?.path;
+      const { name, lastName, email, profileImage } =
+        await this.userUseCase.addNewUser(newUser);
+      return res.status(201).json({ name, lastName, email, profileImage });
     } catch (err) {
       return next(err);
     }
-    return res.status(201).json(userAuthLimited);
   };
 
   fetchChats = async (req: Request, res: Response, next: NextFunction) => {
-    let chats: Chat[] | [];
+    let chats: {}[];
     try {
       const uid = req.session.passport?.user;
 
@@ -43,18 +39,19 @@ export default class UserController {
     res: Response,
     next: NextFunction
   ) => {
-    let users;
+    let contacts;
+
     try {
       const uid = req.session.passport?.user;
 
       if (!uid) {
         throw new BaseError('No author id', HttpStatusCode.BAD_REQUEST);
       }
-      users = await this.userUseCase.getAllContacts(uid);
+      contacts = await this.userUseCase.getAllContacts(uid);
     } catch (err) {
       return next(err);
     }
-    return res.status(200).json({ users });
+    return res.status(200).json(contacts);
   };
 
   postNewContact = async (req: Request, res: Response, next: NextFunction) => {
@@ -78,31 +75,53 @@ export default class UserController {
     return res.status(201).json(contactCreated);
   };
 
-  postNewChat = async (req: Request, res: Response, next: NextFunction) => {
-    const { alias, members } = req.body;
-    let newChat;
+  fetchChatByMembers = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { alias, members, adminId, chatImage } = req.body;
+    let chatObj;
 
     try {
-      const creatorId = req.session.passport?.user;
+      const uid = req.session.passport?.user;
 
-      if (!creatorId) {
+      if (!uid) {
         throw new BaseError('No author id', HttpStatusCode.BAD_REQUEST);
       }
 
-      members.push({ uid: creatorId });
-      newChat = await this.userUseCase.createNewChat(
+      chatObj = await this.userUseCase.getChatByMembers(
         alias,
         members,
-        res.locals.uid
+        uid,
+        adminId,
+        chatImage
       );
     } catch (err) {
       return next(err);
     }
-    return res.status(201).json(newChat);
+    return res.status(201).json(chatObj);
+  };
+
+  getChatById = async (req: Request, res: Response, next: NextFunction) => {
+    const { cid } = req.body;
+    let chatAndID;
+
+    try {
+      const uid = req.session.passport?.user;
+
+      if (!uid) {
+        throw new BaseError('No author id', HttpStatusCode.BAD_REQUEST);
+      }
+      chatAndID = await this.userUseCase.getChatById(uid, cid);
+    } catch (err) {
+      return next(err);
+    }
+    return res.status(201).json(chatAndID);
   };
 
   postNewMsg = async (req: Request, res: Response, next: NextFunction) => {
-    const { chatId, content, type } = req.body;
+    const { cid, content, type } = req.body;
     let msg;
     try {
       const senderId = req.session.passport?.user;
@@ -110,7 +129,7 @@ export default class UserController {
       if (!senderId) {
         throw new BaseError('No sender id', HttpStatusCode.BAD_REQUEST);
       }
-      msg = await this.userUseCase.sendMsg(chatId, content, type, senderId);
+      msg = await this.userUseCase.sendMsg(cid, content, type, senderId);
     } catch (err) {
       return next(err);
     }
@@ -126,7 +145,7 @@ export default class UserController {
       if (!uid) {
         throw new BaseError('No user id', HttpStatusCode.BAD_REQUEST);
       }
-      msgs = await this.userUseCase.getAllChatMsgs(uid, chatId);
+      msgs = await this.userUseCase.getChatById(uid, chatId);
     } catch (err) {
       return next(err);
     }
