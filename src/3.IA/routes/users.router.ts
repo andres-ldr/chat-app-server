@@ -6,15 +6,16 @@ import initPassport from '../../4.F&D/config/passport-config';
 import UserController from '../controller/users.controller';
 import UserUsesCases from '../../2.ABR/userUseCase';
 import session from 'express-session';
+import { io } from '../../server';
 import passport from 'passport';
 
 export const usersRouter = Router();
 
 const postgresRepository = new PostgresRepository();
 
-const userUseCases = new UserUsesCases(postgresRepository);
+export const userUseCases = new UserUsesCases(postgresRepository);
 
-const userController = new UserController(userUseCases);
+export const userController = new UserController(userUseCases);
 
 //usersRouter.set('trust proxy', 1) // trust first proxy
 initPassport(passport, postgresRepository);
@@ -67,4 +68,3 @@ usersRouter.post('/chatById', userController.getChatById);
 usersRouter.get('/chats', userController.fetchChats);
 usersRouter.get('/contacts', userController.fetchAllContacts);
 usersRouter.post('/send_msg', userController.postNewMsg);
-//usersRouter.post('/chat', userController.fetchChatMsgs);
