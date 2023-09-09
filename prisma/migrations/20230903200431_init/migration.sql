@@ -15,7 +15,7 @@ CREATE TABLE "User" (
     "lastName" VARCHAR(50) NOT NULL,
     "email" VARCHAR(50) NOT NULL,
     "password" VARCHAR(100) NOT NULL,
-    "profileImage" VARCHAR(50) NOT NULL,
+    "profileImage" VARCHAR(100),
     "creationDate" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("uid")
@@ -27,6 +27,7 @@ CREATE TABLE "Contact" (
     "email" VARCHAR(50) NOT NULL,
     "authorId" UUID NOT NULL,
     "alias" VARCHAR(20) NOT NULL,
+    "profileImage" VARCHAR(100),
 
     CONSTRAINT "Contact_pkey" PRIMARY KEY ("contactId")
 );
@@ -34,8 +35,9 @@ CREATE TABLE "Contact" (
 -- CreateTable
 CREATE TABLE "Chat" (
     "cid" UUID NOT NULL,
-    "alias" VARCHAR(30),
+    "alias" VARCHAR(50),
     "creationDate" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "chatImage" VARCHAR(100),
 
     CONSTRAINT "Chat_pkey" PRIMARY KEY ("cid")
 );
