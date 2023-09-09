@@ -1,4 +1,4 @@
-enum MSG_TYPE {
+export enum MSG_TYPE {
   FILE,
   IMG,
   LINK,
@@ -7,8 +7,10 @@ enum MSG_TYPE {
 }
 
 export interface MsgEntity {
-  type: MSG_TYPE;
+  mid: string;
+  chatId: string;
   content: string;
-  date: string;
-  sender: number[];
+  type: string;
+  creationDate: Date;
+  senderId: string;
 }

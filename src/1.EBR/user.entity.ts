@@ -1,11 +1,11 @@
-import { ChatEntity } from './chat.entity';
-
 export interface UserEntity {
+  uid: string;
   name: string;
-  last_name: string;
+  lastName: string;
   email: string;
-  contacts: string[];
-  profile_image: string;
-  chats: ChatEntity[];
-  creation_date: string;
+  password: string;
+  //contacts: [];
+  profileImage: string | null;
+  //chats: [];
+  creationDate: Date;
 }

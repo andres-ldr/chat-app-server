@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
+}
+
+model User {
+  uid               String    @id @default(uuid()) @db.Uuid
+  name              String    @db.VarChar(30)
+  lastName          String    @db.VarChar(50)
+  email             String    @unique @db.VarChar(50)
+  password          String    @db.VarChar(100)
+  profileImage      String?   @db.VarChar(100)
+  creationDate      DateTime  @default(now()) @db.Timestamptz()
+  contact           Contact[]
+  chats             Chat[]    @relation(name: "members")
+  chatsWhichImAdmin Chat[]    @relation(name: "admins")
+  messages          Message[]
+}
+
+model Contact {
+  contactId    String  @id @default(uuid()) @db.Uuid
+  email        String  @db.VarChar(50)
+  author       User    @relation(fields: [authorId], references: [uid])
+  authorId     String  @db.Uuid
+  alias        String  @db.VarChar(20)
+  profileImage String? @db.VarChar(100)
+}
+
+model Chat {
+  cid          String    @id @default(uuid()) @db.Uuid
+  alias        String?   @db.VarChar(50)
+  creationDate DateTime  @default(now()) @db.Timestamptz()
+  chatImage    String?   @db.VarChar(100)
+  messages     Message[]
+  members      User[]    @relation(name: "members")
+  admins       User[]    @relation(name: "admins")
+}
+
+model Message {
+  mid          String   @id @default(uuid()) @db.Uuid
+  chat         Chat     @relation(fields: [chatId], references: [cid])
+  chatId       String   @db.Uuid
+  content      String   @db.Text
+  type         String   @db.VarChar(20)
+  creationDate DateTime @default(now()) @db.Timestamptz()
+  sender       User     @relation(fields: [senderId], references: [uid])
+  senderId     String   @db.Uuid
+}
