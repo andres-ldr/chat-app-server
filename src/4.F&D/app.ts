@@ -18,7 +18,7 @@ app.use(json({ limit: 10485760 }));
 // test config for express-session
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: 'https://gregarious-beijinho-ae0ab4.netlify.app/',
     credentials: true,
   })
 );
