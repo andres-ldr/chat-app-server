@@ -2,7 +2,7 @@ import { userUseCases } from './3.IA/routes/users.router';
 import { Server as WebSocketServer } from 'socket.io';
 import { app } from './4.F&D/app';
 require('dotenv').config();
-import http from 'http';
+import https from 'https';
 declare module 'express-session' {
   interface SessionData {
     passport: { user: string };
@@ -11,7 +11,7 @@ declare module 'express-session' {
 
 const PORT = process.env.PORT;
 
-const server: http.Server = http.createServer(app);
+const server: https.Server = https.createServer(app);
 export const io = new WebSocketServer(server, {
   cors: {
     origin: 'https://gregarious-beijinho-ae0ab4.netlify.app',
