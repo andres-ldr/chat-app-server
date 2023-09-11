@@ -31,7 +31,7 @@ usersRouter.use(
       dbRecordIdFunction: undefined,
     }),
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
+      secure: true, // process.env.NODE_ENV === 'production',
       httpOnly: false,
       maxAge: 3600000,
       sameSite: 'lax', // revisar
