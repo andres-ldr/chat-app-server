@@ -32,7 +32,7 @@ usersRouter.use(
     }),
     cookie: {
       secure: true, // process.env.NODE_ENV === 'production',
-      httpOnly: false,
+      httpOnly: true,
       maxAge: 3600000,
       sameSite: 'lax', // revisar
     },
