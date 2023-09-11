@@ -23,6 +23,7 @@ app.use(
   })
 );
 app.use('/uploads/images', express.static(path.join('uploads', 'images')));
+app.enable('trust proxy');
 app.use('/v1', api);
 
 app.use(ErrorHandler);
