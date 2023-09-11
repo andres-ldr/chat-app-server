@@ -34,7 +34,7 @@ usersRouter.use(
       secure: true, // process.env.NODE_ENV === 'production',
       httpOnly: true,
       maxAge: 3600000,
-      sameSite: false, // revisar
+      sameSite: 'none', // revisar
     },
   })
 );
