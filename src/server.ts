@@ -14,7 +14,10 @@ const PORT = process.env.PORT;
 const server: http.Server = http.createServer(app);
 export const io = new WebSocketServer(server, {
   cors: {
-    origin: 'https://gregarious-beijinho-ae0ab4.netlify.app',
+    origin:
+      process.env.NODE_ENV === 'development'
+        ? 'http://localhost:5173'
+        : 'https://gregarious-beijinho-ae0ab4.netlify.app',
   },
 });
 

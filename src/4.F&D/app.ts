@@ -18,12 +18,15 @@ app.use(json({ limit: 10485760 }));
 // test config for express-session
 app.use(
   cors({
-    origin: 'https://gregarious-beijinho-ae0ab4.netlify.app',
+    origin:
+      process.env.NODE_ENV === 'development'
+        ? 'http://localhost:5173'
+        : 'https://gregarious-beijinho-ae0ab4.netlify.app',
     credentials: true,
   })
 );
-app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 app.enable('trust proxy');
+app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 app.use('/v1', api);
 
 app.use(ErrorHandler);

@@ -6,7 +6,6 @@ import initPassport from '../../4.F&D/config/passport-config';
 import UserController from '../controller/users.controller';
 import UserUsesCases from '../../2.ABR/userUseCase';
 import session from 'express-session';
-import { io } from '../../server';
 import passport from 'passport';
 
 export const usersRouter = Router();
@@ -31,10 +30,10 @@ usersRouter.use(
       dbRecordIdFunction: undefined,
     }),
     cookie: {
-      secure: true, // process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'development' ? false : true,
       httpOnly: true,
       maxAge: 3600000,
-      sameSite: 'none', // revisar
+      sameSite: process.env.NODE_ENV === 'development' ? 'lax' : 'none',
     },
   })
 );
