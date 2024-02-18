@@ -1,14 +1,14 @@
-import UserRepository from '../../2.ABR/user.repository';
-import { HttpStatusCode } from '../../Utils/httpCodes';
-import ContactEntity from '../../1.EBR/Contact.entity';
 import { Prisma, PrismaClient } from '@prisma/client';
-import { UserEntity } from '../../1.EBR/user.entity';
-import { ChatEntity } from '../../1.EBR/chat.entity';
-import { MsgEntity } from '../../1.EBR/msg.entity';
-import BaseError from '../../Utils/BaseError';
 import bcrypt from 'bcrypt';
-require('dotenv').config();
 import { Pool } from 'pg';
+import BaseError from '../../Utils/BaseError';
+import { HttpStatusCode } from '../../Utils/httpCodes';
+import UserRepository from '../../application-rules/user.repository';
+import ContactEntity from '../../enterprise-rules/Contact.entity';
+import { ChatEntity } from '../../enterprise-rules/chat.entity';
+import { MsgEntity } from '../../enterprise-rules/msg.entity';
+import { UserEntity } from '../../enterprise-rules/user.entity';
+require('dotenv').config();
 
 export default class PostgresRepository implements UserRepository {
   readonly prisma;

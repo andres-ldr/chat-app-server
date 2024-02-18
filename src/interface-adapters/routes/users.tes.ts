@@ -1,7 +1,7 @@
-import request from 'supertest';
-import { app } from '../../4.F&D/app';
 import { faker } from '@faker-js/faker';
-import { userSimpleData } from '../../1.EBR/Types';
+import request from 'supertest';
+import { userSimpleData } from '../../enterprise-rules/Types';
+import { app } from '../../frameworks-drivers/app';
 const superagent = require('superagent');
 
 describe('Users API', () => {

@@ -1,8 +1,8 @@
-import { userUseCases } from './3.IA/routes/users.router';
-import { Server as WebSocketServer } from 'socket.io';
-import { app } from './4.F&D/app';
-require('dotenv').config();
 import http from 'http';
+import { Server as WebSocketServer } from 'socket.io';
+import { app } from './frameworks-drivers/app';
+import { userUseCases } from './interface-adapters/routes/users.router';
+require('dotenv').config();
 declare module 'express-session' {
   interface SessionData {
     passport: { user: string };

@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
-import { HttpStatusCode } from '../../Utils/httpCodes';
-import UserUsesCases from '../../2.ABR/userUseCase';
+import { NextFunction, Request, Response } from 'express';
 import BaseError from '../../Utils/BaseError';
+import { HttpStatusCode } from '../../Utils/httpCodes';
+import UserUsesCases from '../../application-rules/userUseCase';
 
 export default class UserController {
   constructor(private userUseCase: UserUsesCases) {}

@@ -1,10 +1,10 @@
-import PostgresRepository from '../../4.F&D/repository/postgresRepository';
+import PostgresRepository from '../../frameworks-drivers/repository/postgresRepository';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import { Request, Response, NextFunction, Router } from 'express';
-import fileUploader from '../../4.F&D/middleware/fileUploader';
-import initPassport from '../../4.F&D/config/passport-config';
+import fileUploader from '../../frameworks-drivers/middleware/fileUploader';
+import initPassport from '../../frameworks-drivers/config/passport-config';
 import UserController from '../controller/users.controller';
-import UserUsesCases from '../../2.ABR/userUseCase';
+import UserUsesCases from '../../application-rules/userUseCase';
 import session from 'express-session';
 import passport from 'passport';
 

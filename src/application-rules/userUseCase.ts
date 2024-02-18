@@ -1,5 +1,5 @@
+import { UserEntity } from '../enterprise-rules/user.entity';
 import UserRepository from './user.repository';
-import { UserEntity } from '../1.EBR/user.entity';
 
 export default class UserUsesCases {
   constructor(private readonly userRepository: UserRepository) {}

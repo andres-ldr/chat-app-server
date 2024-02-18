@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { usersRouter } from '../3.IA/routes/users.router';
+import { usersRouter } from '../interface-adapters/routes/users.router';
 
 export const api: Router = Router();
 
