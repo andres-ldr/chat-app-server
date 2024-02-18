@@ -3,11 +3,11 @@ import bcrypt from 'bcrypt';
 import { Pool } from 'pg';
 import BaseError from '../../Utils/BaseError';
 import { HttpStatusCode } from '../../Utils/httpCodes';
-import UserRepository from '../../application-rules/user.repository';
-import ContactEntity from '../../enterprise-rules/Contact.entity';
-import { ChatEntity } from '../../enterprise-rules/chat.entity';
-import { MsgEntity } from '../../enterprise-rules/msg.entity';
-import { UserEntity } from '../../enterprise-rules/user.entity';
+import UserRepository from '../../application/user.repository';
+import ContactEntity from '../../enterprise/Contact.entity';
+import { ChatEntity } from '../../enterprise/chat.entity';
+import { MsgEntity } from '../../enterprise/msg.entity';
+import { UserEntity } from '../../enterprise/user.entity';
 require('dotenv').config();
 
 export default class PostgresRepository implements UserRepository {

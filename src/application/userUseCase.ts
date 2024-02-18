@@ -1,4 +1,4 @@
-import { UserEntity } from '../enterprise-rules/user.entity';
+import { UserEntity } from '../enterprise/user.entity';
 import UserRepository from './user.repository';
 
 export default class UserUsesCases {

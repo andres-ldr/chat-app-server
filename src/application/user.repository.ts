@@ -1,7 +1,7 @@
-import { MsgEntity } from '..//enterprise-rules/msg.entity';
-import ContactEntity from '../enterprise-rules/Contact.entity';
-import { ChatEntity } from '../enterprise-rules/chat.entity';
-import { UserEntity } from '../enterprise-rules/user.entity';
+import ContactEntity from '../enterprise/Contact.entity';
+import { ChatEntity } from '../enterprise/chat.entity';
+import { MsgEntity } from '../enterprise/msg.entity';
+import { UserEntity } from '../enterprise/user.entity';
 
 export default interface UserRepository {
   getUserById(uuid: string): Promise<UserEntity | null>;

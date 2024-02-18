@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 import superagent from 'superagent';
 import request from 'supertest';
-import { userSimpleData } from '../../enterprise-rules/Types';
-import { app } from '../../frameworks-drivers/app';
+import { userSimpleData } from '../../enterprise/Types';
+import { app } from '../../infrastructure/app';
 var user1 = superagent.agent();
 
 describe('Users API', () => {

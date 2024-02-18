@@ -1,12 +1,12 @@
-import PostgresRepository from '../../frameworks-drivers/repository/postgresRepository';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
-import { Request, Response, NextFunction, Router } from 'express';
-import fileUploader from '../../frameworks-drivers/middleware/fileUploader';
-import initPassport from '../../frameworks-drivers/config/passport-config';
-import UserController from '../controller/users.controller';
-import UserUsesCases from '../../application-rules/userUseCase';
+import { NextFunction, Request, Response, Router } from 'express';
 import session from 'express-session';
 import passport from 'passport';
+import UserUsesCases from '../../application/userUseCase';
+import initPassport from '../../infrastructure/config/passport-config';
+import fileUploader from '../../infrastructure/middleware/fileUploader';
+import PostgresRepository from '../../infrastructure/repository/postgresRepository';
+import UserController from '../controller/users.controller';
 
 export const usersRouter = Router();
 
@@ -18,7 +18,6 @@ export const userController = new UserController(userUseCases);
 
 //usersRouter.set('trust proxy', 1) // trust first proxy
 initPassport(passport, postgresRepository);
-
 usersRouter.use(
   session({
     secret: `${process.env.SESSION_SECRET}`,
