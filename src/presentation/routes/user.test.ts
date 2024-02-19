@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import superagent from 'superagent';
 import request from 'supertest';
 import { userSimpleData } from '../../enterprise/Types';
-import { app } from '../../infrastructure/app';
+import { app } from '../app';
 var user1 = superagent.agent();
 
 describe('Users API', () => {

@@ -1,6 +1,6 @@
 import http from 'http';
-import { app } from './infrastructure/app';
 import { initSocketIO } from './infrastructure/socketIO';
+import { app } from './presentation/app';
 import { userUseCases } from './presentation/routes/users.router';
 require('dotenv').config();
 declare module 'express-session' {

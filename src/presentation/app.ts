@@ -1,10 +1,10 @@
-import ErrorHandler from './middleware/ErrorHandler';
 import { json } from 'body-parser';
+import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
-import { api } from './api';
-import cors from 'cors';
 import path from 'path';
+import ErrorHandler from '../infrastructure/middleware/ErrorHandler';
+import { api } from './api';
 
 export const app = express();
 
