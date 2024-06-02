@@ -25,19 +25,27 @@ model User {
   password          String    @db.VarChar(100)
   profileImage      String?   @db.VarChar(100)
   creationDate      DateTime  @default(now()) @db.Timestamptz()
-  contact           Contact[]
+  // user can have 0 or more contacts
+  contacts          Contact[]
+  // user can be related to 0 or more contacts
+  contactOf         Contact[] @relation(name: "contactOf")
   chats             Chat[]    @relation(name: "members")
   chatsWhichImAdmin Chat[]    @relation(name: "admins")
   messages          Message[]
 }
 
 model Contact {
-  contactId    String  @id @default(uuid()) @db.Uuid
-  email        String  @db.VarChar(50)
-  author       User    @relation(fields: [authorId], references: [uid])
-  authorId     String  @db.Uuid
-  alias        String  @db.VarChar(20)
-  profileImage String? @db.VarChar(100)
+  contactId    String   @id @default(uuid()) @db.Uuid
+  email        String   @db.VarChar(50)
+  // contact must always have one user related to it
+  user         User     @relation(name: "contactOf", fields: [userId], references: [uid])
+  userId       String   @db.Uuid
+  // contact must always have one author
+  author       User     @relation(fields: [authorId], references: [uid])
+  authorId     String   @db.Uuid
+  alias        String   @db.VarChar(20)
+  // profileImage String?  @db.VarChar(100)
+  creationDate DateTime @default(now()) @db.Timestamptz()
 }
 
 model Chat {
@@ -45,6 +53,7 @@ model Chat {
   alias        String?   @db.VarChar(50)
   creationDate DateTime  @default(now()) @db.Timestamptz()
   chatImage    String?   @db.VarChar(100)
+  isGroup      Boolean   @default(false)
   messages     Message[]
   members      User[]    @relation(name: "members")
   admins       User[]    @relation(name: "admins")
@@ -54,7 +63,8 @@ model Message {
   mid          String   @id @default(uuid()) @db.Uuid
   chat         Chat     @relation(fields: [chatId], references: [cid])
   chatId       String   @db.Uuid
-  content      String   @db.Text
+  content      String?  @db.Text
+  file         String?  @db.VarChar(100)
   type         String   @db.VarChar(20)
   creationDate DateTime @default(now()) @db.Timestamptz()
   sender       User     @relation(fields: [senderId], references: [uid])
