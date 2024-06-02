@@ -22,6 +22,14 @@ services:
       - '80:80'
     depends_on:
       - database
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
 volumes:
   db:
+    driver: local
+  redis-data:
     driver: local
