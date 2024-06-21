@@ -1,42 +1,40 @@
 import { PrismaClient } from '@prisma/client';
 import ContactRepository from '../../domain/ContactRepository';
 import ContactEntity from '../../domain/Contact';
-import { UserEntity } from '../../domain/User';
-import Contact from '../../domain/Contact';
 
 export default class PostgresContactRepository implements ContactRepository {
   private static instance: PostgresContactRepository;
 
   constructor(readonly prisma: PrismaClient) {}
 
-  // async getContactById(authorId: string, contactId: string): Promise<any> {
-  //   return await this.prisma.contact.findUnique({
-  //     where: {
-  //       authorId,
-  //       contactId,
-  //     },
-  //   });
-  // }
-
   async getContactById(
     authorId: string,
     contactId: string
-  ): Promise<Contact | null> {
-    try {
-      const contact = await this.prisma.contact.findUnique({
-        where: {
-          authorId,
-          contactId,
-        },
-      });
-      return contact;
-    } catch (error) {
-      console.error('Failed to retrieve contact by ID:', error);
-      throw new Error('Error retrieving contact');
-    }
+  ): Promise<{
+    contactId: string;
+    email: string;
+    authorId: string;
+    alias: string;
+    profileImage?: string;
+  } | null> {
+    return await this.prisma.contact.findUnique({
+      where: {
+        authorId,
+        contactId,
+      },
+    });
   }
 
-  async getContactByEmail(authorId: string, email: string): Promise<any> {
+  async getContactByEmail(
+    authorId: string,
+    email: string
+  ): Promise<{
+    contactId: string;
+    email: string;
+    authorId: string;
+    alias: string;
+    profileImage?: string;
+  } | null> {
     return this.prisma.contact.findFirst({
       where: {
         authorId,
@@ -47,7 +45,16 @@ export default class PostgresContactRepository implements ContactRepository {
     });
   }
 
-  async updateContact(authorId: string, contact: ContactEntity): Promise<any> {
+  async updateContact(
+    authorId: string,
+    contact: ContactEntity
+  ): Promise<{
+    contactId: string;
+    email: string;
+    authorId: string;
+    alias: string;
+    profileImage?: string;
+  } | null> {
     return await this.prisma.contact.update({
       where: {
         contactId: contact.contactId,
@@ -77,7 +84,13 @@ export default class PostgresContactRepository implements ContactRepository {
     });
   }
 
-  async createContact(contact: any): Promise<any> {
+  async createContact(contact: any): Promise<{
+    contactId: string;
+    email: string;
+    authorId: string;
+    alias: string;
+    profileImage?: string;
+  } | null> {
     const newContact = await this.prisma.contact.create({
       data: {
         alias: contact.alias,
@@ -97,7 +110,16 @@ export default class PostgresContactRepository implements ContactRepository {
     return newContact;
   }
 
-  async deleteContact(authorId: string, contactId: string): Promise<any> {
+  async deleteContact(
+    authorId: string,
+    contactId: string
+  ): Promise<{
+    contactId: string;
+    email: string;
+    authorId: string;
+    alias: string;
+    profileImage?: string;
+  } | null> {
     return await this.prisma.contact.delete({
       where: {
         contactId,
