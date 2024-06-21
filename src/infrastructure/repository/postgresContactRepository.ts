@@ -10,13 +10,7 @@ export default class PostgresContactRepository implements ContactRepository {
   async getContactById(
     authorId: string,
     contactId: string
-  ): Promise<{
-    contactId: string;
-    email: string;
-    authorId: string;
-    alias: string;
-    profileImage?: string;
-  } | null> {
+  ): Promise<any> {
     return await this.prisma.contact.findUnique({
       where: {
         authorId,
@@ -28,13 +22,7 @@ export default class PostgresContactRepository implements ContactRepository {
   async getContactByEmail(
     authorId: string,
     email: string
-  ): Promise<{
-    contactId: string;
-    email: string;
-    authorId: string;
-    alias: string;
-    profileImage?: string;
-  } | null> {
+  ): Promise<any> {
     return this.prisma.contact.findFirst({
       where: {
         authorId,
@@ -48,13 +36,7 @@ export default class PostgresContactRepository implements ContactRepository {
   async updateContact(
     authorId: string,
     contact: ContactEntity
-  ): Promise<{
-    contactId: string;
-    email: string;
-    authorId: string;
-    alias: string;
-    profileImage?: string;
-  } | null> {
+  ): Promise<any> {
     return await this.prisma.contact.update({
       where: {
         contactId: contact.contactId,
@@ -84,13 +66,7 @@ export default class PostgresContactRepository implements ContactRepository {
     });
   }
 
-  async createContact(contact: any): Promise<{
-    contactId: string;
-    email: string;
-    authorId: string;
-    alias: string;
-    profileImage?: string;
-  } | null> {
+  async createContact(contact: any): Promise<any> {
     const newContact = await this.prisma.contact.create({
       data: {
         alias: contact.alias,
@@ -113,13 +89,7 @@ export default class PostgresContactRepository implements ContactRepository {
   async deleteContact(
     authorId: string,
     contactId: string
-  ): Promise<{
-    contactId: string;
-    email: string;
-    authorId: string;
-    alias: string;
-    profileImage?: string;
-  } | null> {
+  ): Promise<any> {
     return await this.prisma.contact.delete({
       where: {
         contactId,

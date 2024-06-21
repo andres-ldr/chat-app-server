@@ -1,43 +1,19 @@
 import ContactEntity from './Contact';
 
 export default interface ContactRepository {
-  createContact(contact: any): Promise<{
-    contactId: string;
-    email: string;
-    authorId: string;
-    alias: string;
-    profileImage?: string;
-  } | null>;
+  createContact(contact: any): Promise<any>;
   getContacts(authorId: string): Promise<any[]>;
   getContactById(
     contactId: string,
     authorId: string
-  ): Promise<{
-    contactId: string;
-    email: string;
-    authorId: string;
-    alias: string;
-    profileImage?: string;
-  } | null>;
+  ): Promise<any>;
   getContactByEmail(
     authorId: string,
     email: string
-  ): Promise<{
-    contactId: string;
-    email: string;
-    authorId: string;
-    alias: string;
-    profileImage?: string;
-  } | null>;
+  ): Promise<any>;
   updateContact(
     authorId: string,
     contact: ContactEntity
-  ): Promise<{
-    contactId: string;
-    email: string;
-    authorId: string;
-    alias: string;
-    profileImage?: string;
-  } | null>;
+  ): Promise<any>;
   deleteContact(authorId: string, contactId: string): Promise<any>;
 }
