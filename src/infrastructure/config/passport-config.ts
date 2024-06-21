@@ -1,11 +1,11 @@
+import bcrypt from 'bcrypt';
 import { PassportStatic } from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
-import PostgresRepository from '../repository/postgresRepository';
-import bcrypt from 'bcrypt';
+import PostgresUserRepository from '../repository/postgresUserRepository';
 
 const initPassport = async (
   passport: PassportStatic,
-  userRepository: PostgresRepository
+  userRepository: PostgresUserRepository
 ) => {
   const authenticateUser = async (
     email: string,
