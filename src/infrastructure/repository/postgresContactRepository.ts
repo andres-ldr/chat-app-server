@@ -7,23 +7,18 @@ export default class PostgresContactRepository implements ContactRepository {
 
   constructor(readonly prisma: PrismaClient) {}
 
-  async getContactById(
-    authorId: string,
-    contactId: string
-  ): Promise<any> {
-    return await this.prisma.contact.findUnique({
+  async getContactById(authorId: string, contactId: string): Promise<any> {
+    const contact = await this.prisma.contact.findUnique({
       where: {
         authorId,
         contactId,
       },
     });
+    return contact;
   }
 
-  async getContactByEmail(
-    authorId: string,
-    email: string
-  ): Promise<any> {
-    return this.prisma.contact.findFirst({
+  async getContactByEmail(authorId: string, email: string): Promise<any> {
+    const contact = await this.prisma.contact.findFirst({
       where: {
         authorId,
         user: {
@@ -31,13 +26,11 @@ export default class PostgresContactRepository implements ContactRepository {
         },
       },
     });
+    return contact;
   }
 
-  async updateContact(
-    authorId: string,
-    contact: ContactEntity
-  ): Promise<any> {
-    return await this.prisma.contact.update({
+  async updateContact(authorId: string, contact: ContactEntity): Promise<any> {
+    const updatedContact = await this.prisma.contact.update({
       where: {
         contactId: contact.contactId,
       },
@@ -56,6 +49,7 @@ export default class PostgresContactRepository implements ContactRepository {
         },
       },
     });
+    return updatedContact;
   }
 
   async getContacts(authorId: string): Promise<any[]> {
@@ -86,16 +80,14 @@ export default class PostgresContactRepository implements ContactRepository {
     return newContact;
   }
 
-  async deleteContact(
-    authorId: string,
-    contactId: string
-  ): Promise<any> {
-    return await this.prisma.contact.delete({
+  async deleteContact(authorId: string, contactId: string): Promise<any> {
+    const deletedContact = await this.prisma.contact.delete({
       where: {
         contactId,
         // authorId,
       },
     });
+    return deletedContact;
   }
 
   static getInstance(prisma: PrismaClient): PostgresContactRepository {
