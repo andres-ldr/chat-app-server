@@ -11,7 +11,7 @@ export default class PostgresContactRepository implements ContactRepository {
   async getContactById(
     authorId: string,
     contactId: string
-  ): Promise<ContactEntity | null> {
+  ): Promise<any> {
     return await this.prisma.contact.findUnique({
       where: {
         authorId,
@@ -23,7 +23,7 @@ export default class PostgresContactRepository implements ContactRepository {
   async getContactByEmail(
     authorId: string,
     email: string
-  ): Promise<ContactEntity | null> {
+  ): Promise<any> {
     return this.prisma.contact.findFirst({
       where: {
         authorId,
@@ -37,7 +37,7 @@ export default class PostgresContactRepository implements ContactRepository {
   async updateContact(
     authorId: string,
     contact: ContactEntity
-  ): Promise<ContactEntity | null> {
+  ): Promise<any> {
     return await this.prisma.contact.update({
       where: {
         contactId: contact.contactId,
