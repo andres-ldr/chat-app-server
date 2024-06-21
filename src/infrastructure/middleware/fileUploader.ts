@@ -32,4 +32,4 @@ const fileUpload = multer({
   },
 });
 
-export default fileUpload.single('profileImage');
+export default fileUpload;
