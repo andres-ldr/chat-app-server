@@ -2,28 +2,41 @@ import { PrismaClient } from '@prisma/client';
 import ContactRepository from '../../domain/ContactRepository';
 import ContactEntity from '../../domain/Contact';
 import { UserEntity } from '../../domain/User';
+import Contact from '../../domain/Contact';
 
 export default class PostgresContactRepository implements ContactRepository {
   private static instance: PostgresContactRepository;
 
   constructor(readonly prisma: PrismaClient) {}
 
+  // async getContactById(authorId: string, contactId: string): Promise<any> {
+  //   return await this.prisma.contact.findUnique({
+  //     where: {
+  //       authorId,
+  //       contactId,
+  //     },
+  //   });
+  // }
+
   async getContactById(
     authorId: string,
     contactId: string
-  ): Promise<any> {
-    return await this.prisma.contact.findUnique({
-      where: {
-        authorId,
-        contactId,
-      },
-    });
+  ): Promise<Contact | null> {
+    try {
+      const contact = await this.prisma.contact.findUnique({
+        where: {
+          authorId,
+          contactId,
+        },
+      });
+      return contact;
+    } catch (error) {
+      console.error('Failed to retrieve contact by ID:', error);
+      throw new Error('Error retrieving contact');
+    }
   }
 
-  async getContactByEmail(
-    authorId: string,
-    email: string
-  ): Promise<any> {
+  async getContactByEmail(authorId: string, email: string): Promise<any> {
     return this.prisma.contact.findFirst({
       where: {
         authorId,
@@ -34,10 +47,7 @@ export default class PostgresContactRepository implements ContactRepository {
     });
   }
 
-  async updateContact(
-    authorId: string,
-    contact: ContactEntity
-  ): Promise<any> {
+  async updateContact(authorId: string, contact: ContactEntity): Promise<any> {
     return await this.prisma.contact.update({
       where: {
         contactId: contact.contactId,
