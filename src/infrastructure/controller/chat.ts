@@ -54,7 +54,6 @@ export default class ChatController {
       } else {
         chatData.admins = Array(userId);
       }
-      chatData.isGroup = true;
       const chat = await this.chatUseCases.createGroup(chatData);
       return res.status(201).json(chat);
     } catch (error) {
