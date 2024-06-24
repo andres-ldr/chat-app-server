@@ -205,28 +205,41 @@ export default class PostgresChatRepository implements ChatRepository {
     });
   }
 
-  async postNewGroup(chatData: any): Promise<any> {
-    return await this.prisma.chat.create({
+  async postNewGroup(chatData: {
+    alias: string;
+    chatImage: string;
+    isGroup: boolean;
+    admins: UserEntity[];
+    members: UserEntity[];
+  }): Promise<{
+    cid: string;
+    alias: string | null;
+    creationDate: Date;
+    chatImage: string | null;
+    isGroup: boolean;
+  }> {
+    const newGroup = await this.prisma.chat.create({
       data: {
         alias: chatData.alias,
         chatImage: chatData.chatImage,
         isGroup: chatData.isGroup,
         admins: {
-          connect: chatData.admins.map((e: UserEntity) => {
+          connect: chatData.admins.map(({ uid }: UserEntity) => {
             return {
-              uid: e.uid,
+              uid: uid,
             };
           }),
         },
         members: {
-          connect: chatData.members.map((e: UserEntity) => {
+          connect: chatData.members.map(({ uid }: UserEntity) => {
             return {
-              uid: e.uid,
+              uid: uid,
             };
           }),
         },
       },
     });
+    return newGroup;
   }
 
   async deleteChat(cid: string, uid: string): Promise<any> {
