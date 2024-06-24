@@ -1,12 +1,12 @@
 import http from 'http';
 import { app } from './infrastructure/app';
-import { initSocketIO } from './infrastructure/socketIO';
 import { Server as WebSocketServer } from 'socket.io';
 import prismaClient from './infrastructure/config/prisma-client';
 import PostgresMessageRepository from './infrastructure/repository/postgresMessageRepository';
 import MessageUseCase from './application/messageUseCase';
 import PostgresUserRepository from './infrastructure/repository/postgresUserRepository';
-require('dotenv').config();
+import 'dotenv/config';
+
 declare module 'express-session' {
   interface SessionData {
     passport: { user: string };
