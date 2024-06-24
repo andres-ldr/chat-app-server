@@ -208,7 +208,6 @@ export default class PostgresChatRepository implements ChatRepository {
   async postNewGroup(chatData: {
     alias: string;
     chatImage: string;
-    isGroup: boolean;
     admins: UserEntity[];
     members: UserEntity[];
   }): Promise<{
@@ -222,7 +221,7 @@ export default class PostgresChatRepository implements ChatRepository {
       data: {
         alias: chatData.alias,
         chatImage: chatData.chatImage,
-        isGroup: chatData.isGroup,
+        isGroup: true,
         admins: {
           connect: chatData.admins.map(({ uid }: UserEntity) => {
             return {
@@ -239,6 +238,8 @@ export default class PostgresChatRepository implements ChatRepository {
         },
       },
     });
+    console.log(newGroup);
+
     return newGroup;
   }
 
