@@ -1,12 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import BaseError from '../../Utils/BaseError';
 
-const ErrorHandler = (
-  err: BaseError,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const ErrorHandler = (err: BaseError, req: Request, res: Response) => {
   const errStatus = err.code || 500;
   const errMsg = err.message || 'Something went wrong';
   res.status(errStatus).json({
