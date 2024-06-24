@@ -47,7 +47,7 @@ export default class ChatUseCases {
         const receiver = members.filter((e) => e.uid !== userId)[0];
         // TODO: GET LAST MESSAGE OF EACH CHAT
         // const lastMessage = await this.chatRepository.getLastMessage(chat.cid);
-        
+
         // TODO: RETURN CONTACT DATA IF CHAT IS WITH A CONTACT
         // const contact = await this.userRepository.checkIfContact();
         /**
@@ -65,10 +65,10 @@ export default class ChatUseCases {
          * members,
          *  }
          * }
-         * 
-         * 
-        */
-       
+         *
+         *
+         */
+
         return {
           ...chat,
           alias: receiver.name,
@@ -87,7 +87,12 @@ export default class ChatUseCases {
     return await this.chatRepository.deleteChat(cid, uid);
   }
 
-  public async createGroup(chatData: any) {
+  public async createGroup(chatData: {
+    alias: string;
+    chatImage: string;
+    admins: string[];
+    members: string[];
+  }) {
     const admins = await Promise.all(
       chatData.admins.map((e: string) => this.userRepository.getUserById(e))
     );
@@ -183,7 +188,7 @@ export default class ChatUseCases {
     // adding new admins
     if (currentAdminIds.length < chatData.admins.length) {
       newAdmins = chatData.admins.filter((e) => !currentAdminIds.includes(e));
-      const adminAdded = await this.chatRepository.postAdmins({
+      await this.chatRepository.postAdmins({
         cid: chatData.cid,
         userIds: newAdmins,
       });
@@ -191,13 +196,13 @@ export default class ChatUseCases {
       // removing admins
       newAdmins = currentAdminIds.filter((e) => !chatData.admins.includes(e));
       //TODO: DISCONNECT USERS FROM CHAT
-      const adminRemoved = await this.chatRepository.deleteAdmins({
+      await this.chatRepository.deleteAdmins({
         cid: chatData.cid,
         userIds: newAdmins,
       });
     }
     // get users based on uid
-    const admins = await Promise.all(
+    await Promise.all(
       newAdmins.map((e: string) => this.userRepository.getUserById(e))
     );
 
@@ -226,7 +231,7 @@ export default class ChatUseCases {
       console.log(memberDeleted);
     }
 
-    const members = await Promise.all(
+    await Promise.all(
       newMembers.map((e: string) => this.userRepository.getUserById(e))
     );
 
@@ -266,7 +271,7 @@ export default class ChatUseCases {
         (e: UserEntity) => e.uid !== chatData.userId
       )[0];
 
-      const newAdminAdded = await this.chatRepository.postAdmins({
+      await this.chatRepository.postAdmins({
         cid: chatData.cid,
         userIds: Array(newAdmin.uid),
       });
