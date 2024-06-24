@@ -10,7 +10,21 @@ const initPassport = async (
   const authenticateUser = async (
     email: string,
     password: string,
-    done: Function
+    done: (
+      error: Error | null,
+      user?:
+        | {
+            uid: string;
+            email: string;
+            name: string;
+            lastName: string;
+            password: string;
+            profileImage: string | null;
+            creationDate: Date;
+          }
+        | boolean,
+      options?: unknown
+    ) => void
   ) => {
     try {
       const user = await userRepository.prisma.user.findUnique({
@@ -29,13 +43,17 @@ const initPassport = async (
 
       return done(null, user);
     } catch (err) {
-      return done(err);
+      return done(err as Error);
     }
   };
 
-  passport.use(new LocalStrategy({ usernameField: 'email' }, authenticateUser));
+  const localStrategy = new LocalStrategy(
+    { usernameField: 'email' },
+    authenticateUser
+  );
+  passport.use(localStrategy);
 
-  passport.serializeUser((user: any, done) => done(null, user.uid));
+  passport.serializeUser((user: unknown, done) => done(null, user.uid));
   passport.deserializeUser((id: string, done) =>
     done(null, userRepository.getUserById(id))
   );
