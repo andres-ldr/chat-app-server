@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "jest --runInBand",
+    "lint": "npx eslint ./src",
     "test:watch": "jest --runInBand --watchAll",
     "dev": "tsc --watch & nodemon dist/server.js",
     "start": "node dist/server.js",
@@ -14,18 +15,22 @@
   "author": "andres lopez",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^9.5.0",
     "@faker-js/faker": "^8.0.2",
     "@prisma/client": "^5.1.1",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.1",
+    "eslint": "^9.5.0",
+    "globals": "^15.6.0",
     "jest": "^29.5.0",
-    "nodemon": "^2.0.22",
+    "nodemon": "^3.1.4",
     "prisma": "^5.1.1",
     "socket.io": "^4.7.2",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.0",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "typescript-eslint": "^7.13.1"
   },
   "dependencies": {
     "@quixo3/prisma-session-store": "^3.1.13",
