@@ -1,8 +1,5 @@
-import ContactEntity from './Contact';
-import { ChatEntity } from './Chat';
-import { MsgEntity } from './Message';
 import { UserEntity } from './User';
-import Singleton from '../Utils/Singleton';
+
 
 export default interface UserRepository {
   postNewUser(user: UserEntity): Promise<UserEntity>;

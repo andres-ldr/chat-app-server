@@ -44,7 +44,7 @@ api.use(passport.session());
 api.post(
   '/login',
   passport.authenticate('local'),
-  (req: Request, res: Response, next: NextFunction) => {
+  (req: Request, res: Response) => {
     return res.status(200).json(req.user);
   }
 );

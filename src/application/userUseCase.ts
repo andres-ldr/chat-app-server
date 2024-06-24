@@ -1,8 +1,5 @@
-import { MsgEntity } from '../domain/Message';
 import { UserEntity } from '../domain/User';
 import UserRepository from '../domain/UserRepository';
-import prismaClient from '../infrastructure/config/prisma-client';
-import PostgresUserRepository from '../infrastructure/repository/postgresUserRepository';
 
 export default class UserUsesCases {
   private static instance: UserUsesCases;

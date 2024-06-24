@@ -1,5 +1,3 @@
-import { UserEntity } from './User';
-
 export default interface ContactEntity {
   contactId: string;
   userId: string;
