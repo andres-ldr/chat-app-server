@@ -4,7 +4,6 @@ import BaseError from '../../Utils/BaseError';
 import { HttpStatusCode } from '../../Utils/httpCodes';
 import UserRepository from '../../domain/UserRepository';
 import { UserEntity } from '../../domain/User';
-require('dotenv').config();
 
 export default class PostgresUserRepository implements UserRepository {
   private static instance: PostgresUserRepository;
@@ -66,7 +65,7 @@ export default class PostgresUserRepository implements UserRepository {
         throw new BaseError('User does not exists', 404);
       }
     } catch (err) {
-      let error: Error = err as Error;
+      const error: Error = err as Error;
       throw new BaseError(
         `Couldn't get user by id`,
         HttpStatusCode.INTERNAL_SERVER_ERROR,
@@ -89,7 +88,7 @@ export default class PostgresUserRepository implements UserRepository {
         data: { name, lastName, email, password: `${hash}`, profileImage },
       });
     } catch (err) {
-      let error: Error = err as Error;
+      const error: Error = err as Error;
 
       throw new BaseError(
         `${error.message}`,
@@ -108,7 +107,7 @@ export default class PostgresUserRepository implements UserRepository {
         where: { email },
       });
     } catch (err) {
-      let error: Error = err as Error;
+      const error: Error = err as Error;
       throw new BaseError(
         `Couldn't get user by email`,
         HttpStatusCode.INTERNAL_SERVER_ERROR,
