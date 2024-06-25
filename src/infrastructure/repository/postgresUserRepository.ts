@@ -60,10 +60,10 @@ export default class PostgresUserRepository implements UserRepository {
   async getUserById(uuid: string): Promise<UserEntity | null> {
     let result;
     try {
-      result = await this.userExists(uuid);
-      if (!result) {
-        throw new BaseError('User does not exists', 404);
-      }
+      result = await this.prisma.user.findUnique({
+        where: { uid: uuid },
+      });
+      return result;
     } catch (err) {
       const error: Error = err as Error;
       throw new BaseError(
@@ -72,7 +72,6 @@ export default class PostgresUserRepository implements UserRepository {
         error.stack
       );
     }
-    return result;
   }
 
   async postNewUser(user: UserEntity): Promise<UserEntity> {

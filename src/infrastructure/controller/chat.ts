@@ -16,11 +16,10 @@ export default class ChatController {
 
   postNewChat = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const chatData = req.body;
+      const { members }: { members: string[] } = req.body;
       const authorId = req.session.passport!.user;
-      chatData.members = chatData.members.concat(authorId);
-
-      const chat = await this.chatUseCases.createChat(chatData);
+      members.push(authorId);
+      const chat = await this.chatUseCases.createChat(members);
       return res.status(201).json(chat);
     } catch (error) {
       next(error);
@@ -40,20 +39,27 @@ export default class ChatController {
 
   postNewGroup = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.session.passport!.user;
-      const chatData = req.body;
+      // const userId = req.session.passport!.user;
+      let chatData: {
+        alias: string;
+        chatImage: string;
+        admins: string[];
+        members: string[];
+      } = req.body;
+      chatData = {
+        ...chatData,
+        admins: Array.isArray(chatData.admins)
+          ? chatData.admins
+          : [chatData.admins],
+        members: Array.isArray(chatData.members)
+          ? chatData.members
+          : [chatData.members],
+      };
 
       chatData.chatImage = req.file?.path || 'uploads/images/default.jpg';
-      chatData.members.push(userId);
+      // chatData.members.push(userId); // NOTE: can be done in the client side
+      // chatData.admins.push(userId);
 
-      if (chatData.admins) {
-        if (chatData.admins !== Array) {
-          chatData.admins = Array(chatData.admins);
-        }
-        chatData.admins.push(userId);
-      } else {
-        chatData.admins = Array(userId);
-      }
       const chat = await this.chatUseCases.createGroup(chatData);
       return res.status(201).json(chat);
     } catch (error) {
@@ -61,43 +67,43 @@ export default class ChatController {
     }
   };
 
-  addMembersToGroup = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const chatData = req.body;
-      chatData.adminId = req.session.passport!.user;
-      const chat = await this.chatUseCases.addMembersToGroup(chatData);
-      return res.status(200).json(chat);
-    } catch (error) {
-      next(error);
-    }
-  };
+  // addMembersToGroup = async (
+  //   req: Request,
+  //   res: Response,
+  //   next: NextFunction
+  // ) => {
+  //   try {
+  //     const chatData = req.body;
+  //     chatData.adminId = req.session.passport!.user;
+  //     const chat = await this.chatUseCases.addMembersToGroup(chatData);
+  //     return res.status(200).json(chat);
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
 
-  removeMembersFromGroup = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const chatData = req.body;
-      chatData.adminId = req.session.passport!.user;
-      const chat = await this.chatUseCases.removeMembersFromGroup(chatData);
-      return res.status(200).json(chat);
-    } catch (error) {
-      next(error);
-    }
-  };
+  // removeMembersFromGroup = async (
+  //   req: Request,
+  //   res: Response,
+  //   next: NextFunction
+  // ) => {
+  //   try {
+  //     const chatData = req.body;
+  //     chatData.adminId = req.session.passport!.user;
+  //     const chat = await this.chatUseCases.removeMembersFromGroup(chatData);
+  //     return res.status(200).json(chat);
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
 
   updateGroup = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const chatData = req.body;
       if (req.file) chatData.chatImage = req.file.path;
-      chatData.adminId = req.session.passport!.user;
+      const adminId = req.session.passport!.user;
 
-      const chat = await this.chatUseCases.updateGroup(chatData);
+      const chat = await this.chatUseCases.updateGroup(chatData, adminId);
       return res.status(200).json(chat);
     } catch (error) {
       next(error);
@@ -115,14 +121,14 @@ export default class ChatController {
     }
   };
 
-  exitGroup = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const chatData = req.body;
-      chatData.userId = req.session.passport!.user;
-      const chat = await this.chatUseCases.exitGroup(chatData);
-      return res.status(200).json(chat);
-    } catch (error) {
-      next(error);
-    }
-  };
+  // exitGroup = async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     const chatData = req.body;
+  //     chatData.userId = req.session.passport!.user;
+  //     const chat = await this.chatUseCases.exitGroup(chatData);
+  //     return res.status(200).json(chat);
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
 }

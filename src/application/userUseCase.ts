@@ -14,7 +14,8 @@ export default class UserUsesCases {
   }
 
   public async addNewUser(newUser: UserEntity) {
-    return await this.userRepository.postNewUser(newUser);
+    const newUserCreated = await this.userRepository.postNewUser(newUser);
+    return newUserCreated;
   }
 
   public async updateUser(uid: string, updatedUser: UserEntity) {

@@ -26,12 +26,12 @@ chatRouter.post(
   fileUploader.single('chatImage'),
   chatController.postNewGroup
 );
-chatRouter.post('/groups/add', chatController.addMembersToGroup);
-chatRouter.delete('/groups/remove', chatController.removeMembersFromGroup);
+// chatRouter.post('/groups/add', chatController.addMembersToGroup);
+// chatRouter.delete('/groups/remove', chatController.removeMembersFromGroup);
 chatRouter.put(
   '/groups/update',
   fileUploader.single('chatImage'),
   chatController.updateGroup
 );
 chatRouter.delete('/groups/delete', chatController.deleteGroup);
-chatRouter.delete('/groups/exit', chatController.exitGroup);
+// chatRouter.delete('/groups/exit', chatController.exitGroup);
