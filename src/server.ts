@@ -41,7 +41,7 @@ io.on('connection', (socket) => {
 
   socket.on('message', async (message) => {
     const messageCreated = await messageUseCase.sendMessage(message);
-    socket.to(`${messageCreated.cid}`).emit('message', messageCreated);
+    socket.to(`${messageCreated.chatId}`).emit('message', messageCreated);
     io.emit('message', messageCreated);
   });
 
