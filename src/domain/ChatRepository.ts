@@ -1,4 +1,9 @@
+import prismaClient from '../infrastructure/config/prisma-client';
 import { Chat } from './Chat';
+
+const prisma = prismaClient.getInstance();
+
+export type ChatCreateType = ReturnType<typeof prisma.chat.create>;
 
 export default interface ChatRepository {
   getChatById(id: string): Promise<Chat | null>;
@@ -11,7 +16,7 @@ export default interface ChatRepository {
     chatImage: string;
     admins: string[];
     members: string[];
-  }): Promise<Chat>;
+  }): Promise<ChatCreateType>;
   updateGroup(
     chatData: {
       cid: string;

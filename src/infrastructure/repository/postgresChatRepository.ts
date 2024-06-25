@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import ChatRepository from '../../domain/ChatRepository';
+import ChatRepository, { ChatCreateType } from '../../domain/ChatRepository';
 import { Chat } from '../../domain/Chat';
 
 export default class PostgresChatRepository implements ChatRepository { 
@@ -258,7 +258,7 @@ export default class PostgresChatRepository implements ChatRepository {
     chatImage: string;
     admins: string[];
     members: string[];
-  }): Promise<Chat> {
+  }): Promise<ChatCreateType> {
     const newGroup = await this.prisma.chat.create({
       data: {
         alias: chatData.alias,
