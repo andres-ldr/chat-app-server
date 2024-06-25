@@ -6,57 +6,56 @@ export default class PostgresChatRepository implements ChatRepository {
   private static instance: PostgresChatRepository;
   constructor(private readonly prisma: PrismaClient) {}
 
-  async deleteAdmins(chatData: { cid: string; userIds: string[] }): Promise<{
-    cid: string;
-    alias: string | null;
-    creationDate: Date;
-    chatImage: string | null;
-    isGroup: boolean;
-  }> {
-    return await this.prisma.chat.update({
-      where: {
-        cid: chatData.cid,
-      },
-      data: {
-        admins: {
-          disconnect: chatData.userIds.map((e: string) => {
-            return {
-              uid: e,
-            };
-          }),
-        },
-      },
-    });
-  }
+  // async deleteAdmins(chatData: { cid: string; userIds: string[] }): Promise<{
+  //   cid: string;
+  //   alias: string | null;
+  //   creationDate: Date;
+  //   chatImage: string | null;
+  // }> {
+  //   return await this.prisma.chat.update({
+  //     where: {
+  //       cid: chatData.cid,
+  //     },
+  //     data: {
+  //       admins: {
+  //         disconnect: chatData.userIds.map((e: string) => {
+  //           return {
+  //             uid: e,
+  //           };
+  //         }),
+  //       },
+  //     },
+  //   });
+  // }
 
-  async postAdmins({
-    cid,
-    userIds,
-  }: {
-    cid: string;
-    userIds: string[];
-  }): Promise<{
-    cid: string;
-    alias: string | null;
-    creationDate: Date;
-    chatImage: string | null;
-    isGroup: boolean;
-  }> {
-    return this.prisma.chat.update({
-      where: {
-        cid,
-      },
-      data: {
-        admins: {
-          connect: userIds.map((e: string) => {
-            return {
-              uid: e,
-            };
-          }),
-        },
-      },
-    });
-  }
+  // async postAdmins({
+  //   cid,
+  //   userIds,
+  // }: {
+  //   cid: string;
+  //   userIds: string[];
+  // }): Promise<{
+  //   cid: string;
+  //   alias: string | null;
+  //   creationDate: Date;
+  //   chatImage: string | null;
+  //   isGroup: boolean;
+  // }> {
+  //   return this.prisma.chat.update({
+  //     where: {
+  //       cid,
+  //     },
+  //     data: {
+  //       admins: {
+  //         connect: userIds.map((e: string) => {
+  //           return {
+  //             uid: e,
+  //           };
+  //         }),
+  //       },
+  //     },
+  //   });
+  // }
 
   // async checkIfUserIsAdmin(
   //   cid: string,
