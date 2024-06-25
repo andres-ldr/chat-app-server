@@ -1,35 +1,25 @@
 import bcrypt from 'bcrypt';
 import { PassportStatic } from 'passport';
-import { Strategy as LocalStrategy } from 'passport-local';
+import {
+  IStrategyOptionsWithRequest,
+  Strategy as LocalStrategy,
+  VerifyFunctionWithRequest,
+} from 'passport-local';
 import PostgresUserRepository from '../repository/postgresUserRepository';
+import { UserEntity } from '../../domain/User';
 
 const initPassport = async (
   passport: PassportStatic,
   userRepository: PostgresUserRepository
 ) => {
-  const authenticateUser = async (
+  const authenticateUser: VerifyFunctionWithRequest = async (
+    req: Express.Request,
     email: string,
     password: string,
-    done: (
-      error: Error | null,
-      user?:
-        | {
-            uid: string;
-            email: string;
-            name: string;
-            lastName: string;
-            password: string;
-            profileImage: string | null;
-            creationDate: Date;
-          }
-        | boolean,
-      options?: unknown
-    ) => void
+    done
   ) => {
     try {
-      const user = await userRepository.prisma.user.findUnique({
-        where: { email },
-      });
+      const user = await userRepository.getUserByEmail(email);
 
       if (!user) {
         return done(null, false, { message: 'No user with that email' });
@@ -47,13 +37,20 @@ const initPassport = async (
     }
   };
 
-  const localStrategy = new LocalStrategy(
-    { usernameField: 'email' },
-    authenticateUser
-  );
+  const options: IStrategyOptionsWithRequest = {
+    usernameField: 'email',
+    passwordField: 'password',
+    passReqToCallback: true,
+  };
+
+  const localStrategy = new LocalStrategy(options, authenticateUser);
+
   passport.use(localStrategy);
 
-  passport.serializeUser((user: unknown, done) => done(null, user.uid));
+  passport.serializeUser(function (user: Express.User, done) {
+    const uid = (user as UserEntity).uid;
+    done(null, uid);
+  });
   passport.deserializeUser((id: string, done) =>
     done(null, userRepository.getUserById(id))
   );
