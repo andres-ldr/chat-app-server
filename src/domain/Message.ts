@@ -9,7 +9,8 @@ export enum MSG_TYPE {
 export interface MsgEntity {
   mid: string;
   chatId: string;
-  content: string;
+  content: string | null;
+  file: string | null;
   type: string;
   creationDate: Date;
   senderId: string;

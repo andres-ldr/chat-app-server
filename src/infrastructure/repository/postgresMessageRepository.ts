@@ -6,15 +6,7 @@ export default class PostgresMessageRepository implements MessageRepository {
   static instance: PostgresMessageRepository;
   constructor(private readonly prisma: PrismaClient) {}
 
-  async deleteMessage(mid: string): Promise<{
-    mid: string;
-    chatId: string;
-    content: string | null;
-    file: string | null;
-    type: string;
-    creationDate: Date;
-    senderId: string;
-  }> {
+  async deleteMessage(mid: string): Promise<MsgEntity> {
     return await this.prisma.message.delete({
       where: {
         mid,
@@ -46,15 +38,7 @@ export default class PostgresMessageRepository implements MessageRepository {
     content,
     type,
     senderId,
-  }: MsgEntity): Promise<{
-    mid: string;
-    chatId: string;
-    content: string | null;
-    file: string | null;
-    type: string;
-    creationDate: Date;
-    senderId: string;
-  }> {
+  }: MsgEntity): Promise<MsgEntity> {
     return await this.prisma.message.create({
       data: {
         chatId,
@@ -65,17 +49,7 @@ export default class PostgresMessageRepository implements MessageRepository {
     });
   }
 
-  async getMessages(chatId: string): Promise<
-    {
-      mid: string;
-      chatId: string;
-      content: string | null;
-      file: string | null;
-      type: string;
-      creationDate: Date;
-      senderId: string;
-    }[]
-  > {
+  async getMessages(chatId: string): Promise<MsgEntity[]> {
     return await this.prisma.message.findMany({
       where: {
         chatId,
