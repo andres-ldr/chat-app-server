@@ -48,13 +48,7 @@ export default class ContactUseCases {
       authorId,
       email
     );
-    if (!contact) return null;
-    const user = await this.userRepository.getUserById(contact!.userId);
-    const contactWithUser = {
-      ...contact,
-      user,
-    };
-    return contactWithUser;
+    return contact;
   }
 
   async updateContact(authorId: string, contact: ContactEntity) {
