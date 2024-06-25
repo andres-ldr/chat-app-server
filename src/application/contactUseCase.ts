@@ -35,12 +35,8 @@ export default class ContactUseCases {
       contactId
     );
     if (!contact) return null;
-    const user = await this.userRepository.getUserById(contact!.userId);
-    const contactWithUser = {
-      ...contact,
-      user,
-    };
-    return contactWithUser;
+
+    return contact;
   }
 
   async getContactByEmail(authorId: string, email: string) {
@@ -52,14 +48,15 @@ export default class ContactUseCases {
   }
 
   async updateContact(authorId: string, contact: ContactEntity) {
-    const user = await this.userRepository.getUserByEmail(contact.email);
-    if (!user) return null;
-    contact.userId = user.uid;
-    const updatedContact =await this.contactRepository.updateContact(authorId, contact);
-    console.log(updatedContact);
+    // // const user = await this.userRepository.getUserByEmail(contact.email);
+    // // if (!user) return null;
+    // contact.userId = user.uid;
+    const updatedContact = await this.contactRepository.updateContact(
+      authorId,
+      contact
+    );
     if (!updatedContact) throw new Error('Error updating contact');
     return { message: 'Contact updated successfully' };
-    
   }
 
   async deleteContact(authorId: string, contactId: string) {
