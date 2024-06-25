@@ -17,15 +17,11 @@ export default class ContactUseCases {
   }) {
     const newContact = await this.contactRepository.createContact(contact);
     if (!newContact) throw new Error('Error creating contact');
-    console.log(newContact);
     return { messsage: 'Contact created successfully' };
   }
 
   async getContacts(authorId: string) {
     const contacts = await this.contactRepository.getContacts(authorId);
-
-    console.log(contacts);
-
     return contacts;
   }
 

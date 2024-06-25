@@ -90,6 +90,17 @@ export default class PostgresContactRepository implements ContactRepository {
       where: {
         authorId,
       },
+      include: {
+        user: {
+          select: {
+            uid: true,
+            name: true,
+            lastName: true,
+            email: true,
+            profileImage: true,
+          },
+        },
+      },
     });
   }
 
