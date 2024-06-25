@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import ContactRepository from '../../domain/ContactRepository';
-import ContactEntity from '../../domain/Contact';
+import { Contact, ContactEntity } from '../../domain/Contact';
 import { UserEntity } from '../../domain/User';
 
 export default class PostgresContactRepository implements ContactRepository {
@@ -11,14 +11,7 @@ export default class PostgresContactRepository implements ContactRepository {
   async getContactById(
     authorId: string,
     contactId: string
-  ): Promise<{
-    contactId: string;
-    email: string;
-    userId: string;
-    authorId: string;
-    alias: string;
-    creationDate: Date;
-  } | null> {
+  ): Promise<Contact | null> {
     const contact = await this.prisma.contact.findUnique({
       where: {
         authorId,
@@ -31,14 +24,7 @@ export default class PostgresContactRepository implements ContactRepository {
   async getContactByEmail(
     authorId: string,
     email: string
-  ): Promise<{
-    contactId: string;
-    email: string;
-    userId: string;
-    authorId: string;
-    alias: string;
-    creationDate: Date;
-  } | null> {
+  ): Promise<Contact | null> {
     const contact = await this.prisma.contact.findFirst({
       where: {
         authorId,
@@ -53,14 +39,7 @@ export default class PostgresContactRepository implements ContactRepository {
   async updateContact(
     authorId: string,
     contact: ContactEntity
-  ): Promise<{
-    contactId: string;
-    email: string;
-    userId: string;
-    authorId: string;
-    alias: string;
-    creationDate: Date;
-  }> {
+  ): Promise<Contact> {
     const updatedContact = await this.prisma.contact.update({
       where: {
         contactId: contact.contactId,
@@ -83,16 +62,7 @@ export default class PostgresContactRepository implements ContactRepository {
     return updatedContact;
   }
 
-  async getContacts(authorId: string): Promise<
-    {
-      contactId: string;
-      email: string;
-      userId: string;
-      authorId: string;
-      alias: string;
-      creationDate: Date;
-    }[]
-  > {
+  async getContacts(authorId: string): Promise<Contact[]> {
     return await this.prisma.contact.findMany({
       where: {
         authorId,
@@ -105,14 +75,7 @@ export default class PostgresContactRepository implements ContactRepository {
     email: string;
     user: UserEntity;
     authorId: string;
-  }): Promise<{
-    contactId: string;
-    email: string;
-    userId: string;
-    authorId: string;
-    alias: string;
-    creationDate: Date;
-  }> {
+  }): Promise<Contact> {
     const newContact = await this.prisma.contact.create({
       data: {
         alias: contact.alias,
@@ -132,17 +95,7 @@ export default class PostgresContactRepository implements ContactRepository {
     return newContact;
   }
 
-  async deleteContact(
-    authorId: string,
-    contactId: string
-  ): Promise<{
-    contactId: string;
-    email: string;
-    userId: string;
-    authorId: string;
-    alias: string;
-    creationDate: Date;
-  }> {
+  async deleteContact(authorId: string, contactId: string): Promise<Contact> {
     const deletedContact = await this.prisma.contact.delete({
       where: {
         contactId,
