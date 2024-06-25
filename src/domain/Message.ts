@@ -10,7 +10,7 @@ export interface MsgEntity {
   mid: string;
   chatId: string;
   content: string | null;
-  file: string | null;
+  // file: string;
   type: string;
   creationDate: Date;
   senderId: string;

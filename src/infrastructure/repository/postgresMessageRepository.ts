@@ -14,15 +14,7 @@ export default class PostgresMessageRepository implements MessageRepository {
     });
   }
 
-  async editMessage(message: MsgEntity): Promise<{
-    mid: string;
-    chatId: string;
-    content: string | null;
-    file: string | null;
-    type: string;
-    creationDate: Date;
-    senderId: string;
-  }> {
+  async editMessage(message: MsgEntity): Promise<MsgEntity> {
     return await this.prisma.message.update({
       where: {
         mid: message.mid,
@@ -49,7 +41,27 @@ export default class PostgresMessageRepository implements MessageRepository {
     });
   }
 
-  async getMessages(chatId: string): Promise<MsgEntity[]> {
+  async getMessages(
+    chatId: string
+  ): Promise<
+    ({
+      sender: {
+        uid: string;
+        name: string;
+        lastName: string;
+        email: string;
+        profileImage: string | null;
+      };
+    } & {
+      mid: string;
+      chatId: string;
+      content: string | null;
+      file: string | null;
+      type: string;
+      creationDate: Date;
+      senderId: string;
+    })[]
+  > {
     return await this.prisma.message.findMany({
       where: {
         chatId,
