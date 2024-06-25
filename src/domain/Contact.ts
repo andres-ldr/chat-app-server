@@ -14,6 +14,8 @@ export interface Contact {
   authorId: string;
   alias: string;
   creationDate: Date;
+  profileImage?: string | null;
   // user: string;
   // author: string;
 }
+// contactId: string; email: string; authorId: string; alias: string; profileImage: string | null; } | null
