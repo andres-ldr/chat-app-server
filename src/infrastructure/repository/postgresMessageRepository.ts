@@ -42,23 +42,7 @@ export default class PostgresMessageRepository implements MessageRepository {
   }
 
   async getMessages(chatId: string): Promise<
-    ({
-      sender: {
-        uid: string;
-        name: string;
-        lastName: string;
-        email: string;
-        profileImage: string | null;
-      };
-    } & {
-      mid: string;
-      chatId: string;
-      content: string | null;
-      file: string | null;
-      type: string;
-      creationDate: Date;
-      senderId: string;
-    })[]
+  ReturnType<typeof this.prisma.message.findMany>
   > {
     return await this.prisma.message.findMany({
       where: {

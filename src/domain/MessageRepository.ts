@@ -1,26 +1,13 @@
+import prismaClient from '../infrastructure/config/prisma-client';
 import { Message, MsgEntity } from './Message';
+
+const prisma = prismaClient.getInstance();
 
 export default interface MessageRepository {
   postMessage(message: MsgEntity): Promise<Message>;
-  getMessages(chatId: string): Promise<
-    ({
-      sender: {
-        uid: string;
-        name: string;
-        lastName: string;
-        email: string;
-        profileImage: string | null;
-      };
-    } & {
-      mid: string;
-      chatId: string;
-      content: string | null;
-      file: string | null;
-      type: string;
-      creationDate: Date;
-      senderId: string;
-    })[]
-  >;
+  getMessages(
+    chatId: string
+  ): Promise<ReturnType<typeof prisma.message.findMany>>;
   editMessage(message: MsgEntity): Promise<Message>;
   deleteMessage(mid: string): Promise<Message>;
 }
