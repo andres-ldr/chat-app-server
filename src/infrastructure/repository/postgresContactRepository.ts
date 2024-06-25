@@ -29,8 +29,17 @@ export default class PostgresContactRepository implements ContactRepository {
     const contact = await this.prisma.contact.findFirst({
       where: {
         authorId,
+        email,
+      },
+      include: {
         user: {
-          email,
+          select: {
+            uid: true,
+            name: true,
+            lastName: true,
+            email: true,
+            profileImage: true,
+          },
         },
       },
     });
@@ -44,20 +53,21 @@ export default class PostgresContactRepository implements ContactRepository {
     const updatedContact = await this.prisma.contact.update({
       where: {
         contactId: contact.contactId,
+        authorId
       },
       data: {
         alias: contact.alias,
         email: contact.email,
-        user: {
-          connect: {
-            uid: contact.userId,
-          },
-        },
-        author: {
-          connect: {
-            uid: authorId,
-          },
-        },
+        // user: {
+        //   connect: {
+        //     uid: contact.userId,
+        //   },
+        // },
+        // author: {
+        //   connect: {
+        //     uid: authorId,
+        //   },
+        // },
       },
     });
     return updatedContact;
