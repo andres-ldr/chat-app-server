@@ -6,9 +6,7 @@ export default class PostgresMessageRepository implements MessageRepository {
   static instance: PostgresMessageRepository;
   constructor(private readonly prisma: PrismaClient) {}
 
-  async deleteMessage(
-    mid: string
-  ): Promise<{
+  async deleteMessage(mid: string): Promise<{
     mid: string;
     chatId: string;
     content: string | null;
