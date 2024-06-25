@@ -6,6 +6,7 @@ export interface Chat {
   alias: string | null;
   creationDate: Date;
   chatImage: string | null;
+  isGroup: boolean;
 }
 
 export interface ChatEntity {
@@ -13,6 +14,7 @@ export interface ChatEntity {
   alias?: string;
   creationDate: Date;
   chatImage?: string;
+  isGroup: boolean;
   admins: UserEntity[];
   members: UserEntity[];
   messages: MsgEntity[];

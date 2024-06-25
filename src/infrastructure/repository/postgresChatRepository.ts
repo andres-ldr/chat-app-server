@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import ChatRepository, { ChatCreateType } from '../../domain/ChatRepository';
-import { Chat } from '../../domain/Chat';
+// import { Chat } from '../../domain/Chat';
 
-export default class PostgresChatRepository implements ChatRepository { 
+export default class PostgresChatRepository implements ChatRepository {
   private static instance: PostgresChatRepository;
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -106,7 +106,7 @@ export default class PostgresChatRepository implements ChatRepository {
   }: {
     cid: string;
     adminId: string;
-  }): Promise<Chat> {
+  }): Promise<ReturnType<typeof this.prisma.chat.delete>> {
     return await this.prisma.chat.delete({
       where: {
         cid: cid,
@@ -134,7 +134,7 @@ export default class PostgresChatRepository implements ChatRepository {
       members: string[];
     },
     adminId: string
-  ): Promise<Chat> {
+  ): Promise<ReturnType<typeof this.prisma.chat.update>> {
     return await this.prisma.chat.update({
       where: {
         cid,
@@ -316,7 +316,7 @@ export default class PostgresChatRepository implements ChatRepository {
     return newGroup;
   }
 
-  async deleteChat(cid: string, uid: string): Promise<Chat> {
+  async deleteChat(cid: string, uid: string): Promise<ReturnType<typeof this.prisma.chat.delete>> {
     return await this.prisma.chat.delete({
       where: {
         cid: cid,
@@ -329,7 +329,7 @@ export default class PostgresChatRepository implements ChatRepository {
     });
   }
 
-  async getChatByMembers(members: string[]): Promise<Chat | null> {
+  async getChatByMembers(members: string[]): Promise<ReturnType<typeof this.prisma.chat.findFirst>> {
     return this.prisma.chat.findFirst({
       where: {
         members: {
@@ -375,7 +375,7 @@ export default class PostgresChatRepository implements ChatRepository {
     });
   }
 
-  async getChatById(id: string): Promise<Chat | null> {
+  async getChatById(id: string): Promise<ReturnType<typeof this.prisma.chat.findUnique>> {
     return this.prisma.chat.findUnique({
       where: {
         cid: id,
@@ -415,7 +415,7 @@ export default class PostgresChatRepository implements ChatRepository {
     });
   }
 
-  async getChats(userId: string): Promise<Chat[]> {
+  async getChats(userId: string): Promise<ReturnType<typeof this.prisma.chat.findMany>> {
     return await this.prisma.chat.findMany({
       where: {
         members: {
@@ -459,7 +459,7 @@ export default class PostgresChatRepository implements ChatRepository {
     });
   }
 
-  async postNewChat(members: string[]): Promise<Chat> {
+  async postNewChat(members: string[]): Promise<ReturnType<typeof this.prisma.chat.create>> {
     return this.prisma.chat.create({
       data: {
         members: {
