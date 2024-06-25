@@ -1,20 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import MessageRepository from '../../domain/MessageRepository';
-import { MsgEntity } from '../../domain/Message';
+import { Message, MsgEntity } from '../../domain/Message';
 
 export default class PostgresMessageRepository implements MessageRepository {
   static instance: PostgresMessageRepository;
   constructor(private readonly prisma: PrismaClient) {}
 
-  async deleteMessage(mid: string): Promise<{
-    mid: string;
-    chatId: string;
-    content: string | null;
-    file: string | null;
-    type: string;
-    creationDate: Date;
-    senderId: string;
-  }> {
+  async deleteMessage(mid: string): Promise<Message> {
     return await this.prisma.message.delete({
       where: {
         mid,
@@ -22,15 +14,7 @@ export default class PostgresMessageRepository implements MessageRepository {
     });
   }
 
-  async editMessage(message: MsgEntity): Promise<{
-    mid: string;
-    chatId: string;
-    content: string | null;
-    file: string | null;
-    type: string;
-    creationDate: Date;
-    senderId: string;
-  }> {
+  async editMessage(message: MsgEntity): Promise<Message> {
     return await this.prisma.message.update({
       where: {
         mid: message.mid,
@@ -41,15 +25,12 @@ export default class PostgresMessageRepository implements MessageRepository {
     });
   }
 
-  async postMessage({ chatId, content, type, senderId }: MsgEntity): Promise<{
-    mid: string;
-    chatId: string;
-    content: string | null;
-    file: string | null;
-    type: string;
-    creationDate: Date;
-    senderId: string;
-  }> {
+  async postMessage({
+    chatId,
+    content,
+    type,
+    senderId,
+  }: MsgEntity): Promise<Message> {
     return await this.prisma.message.create({
       data: {
         chatId,

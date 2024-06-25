@@ -19,9 +19,12 @@ export interface MsgEntity {
 export interface Message {
   mid: string;
   chatId: string;
-  content: string | null;
-  // file: string;
+  content?: string | null;
+  file?: string | null;
   type: string;
   creationDate: Date;
   senderId: string;
+  // Assuming Chat and User are also defined somewhere
+  // chat: Chat;
+  // sender: User;
 }
