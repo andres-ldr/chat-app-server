@@ -15,8 +15,18 @@ export default class PostgresContactRepository implements ContactRepository {
   ): Promise<ReturnType<typeof this.prisma.contact.findUnique>> {
     const contact = await this.prisma.contact.findUnique({
       where: {
-        authorId,
         contactId,
+      },
+      include: {
+        user: {
+          select: {
+            uid: true,
+            name: true,
+            lastName: true,
+            email: true,
+            profileImage: true,
+          },
+        },
       },
     });
     return contact;
@@ -53,7 +63,7 @@ export default class PostgresContactRepository implements ContactRepository {
     const updatedContact = await this.prisma.contact.update({
       where: {
         contactId: contact.contactId,
-        authorId
+        authorId,
       },
       data: {
         alias: contact.alias,
