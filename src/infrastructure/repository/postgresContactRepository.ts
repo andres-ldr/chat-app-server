@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import ContactRepository from '../../domain/ContactRepository';
 import { Contact, ContactEntity } from '../../domain/Contact';
-import { UserEntity } from '../../domain/User';
 
 export default class PostgresContactRepository implements ContactRepository {
   private static instance: PostgresContactRepository;
@@ -71,10 +70,9 @@ export default class PostgresContactRepository implements ContactRepository {
   }
 
   async createContact(contact: {
-    alias: string;
     email: string;
-    user: UserEntity;
     authorId: string;
+    alias: string;
   }): Promise<Contact> {
     const newContact = await this.prisma.contact.create({
       data: {
@@ -82,7 +80,7 @@ export default class PostgresContactRepository implements ContactRepository {
         email: contact.email,
         user: {
           connect: {
-            uid: contact.user.uid,
+            email: contact.email,
           },
         },
         author: {

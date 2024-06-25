@@ -1,4 +1,4 @@
-import ContactEntity from '../domain/Contact';
+import { ContactEntity } from '../domain/Contact';
 import ContactRepository from '../domain/ContactRepository';
 import UserRepository from '../domain/UserRepository';
 
@@ -15,30 +15,18 @@ export default class ContactUseCases {
     authorId: string;
     alias: string;
   }) {
-    // find user by email
-    const user = await this.userRepository.getUserByEmail(contact.email);
-    if (!user) return null;
-    const newContact = {
-      ...contact,
-      user,
-    };
-    // TODO: CHECK IF CONTACT ALREADY EXISTS
-    return this.contactRepository.createContact(newContact);
+    const newContact = await this.contactRepository.createContact(contact);
+    if (!newContact) throw new Error('Error creating contact');
+    console.log(newContact);
+    return { messsage: 'Contact created successfully' };
   }
 
   async getContacts(authorId: string) {
     const contacts = await this.contactRepository.getContacts(authorId);
-    const contactsWithUser = Promise.all(
-      contacts.map(async (contact) => {
-        const user = await this.userRepository.getUserById(contact.userId);
-        return {
-          ...contact,
-          user,
-        };
-      })
-    );
 
-    return contactsWithUser;
+    console.log(contacts);
+
+    return contacts;
   }
 
   async getContactById(authorId: string, contactId: string) {
@@ -73,7 +61,11 @@ export default class ContactUseCases {
     const user = await this.userRepository.getUserByEmail(contact.email);
     if (!user) return null;
     contact.userId = user.uid;
-    return this.contactRepository.updateContact(authorId, contact);
+    const updatedContact =await this.contactRepository.updateContact(authorId, contact);
+    console.log(updatedContact);
+    if (!updatedContact) throw new Error('Error updating contact');
+    return { message: 'Contact updated successfully' };
+    
   }
 
   async deleteContact(authorId: string, contactId: string) {

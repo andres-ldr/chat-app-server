@@ -1,11 +1,9 @@
 import { ContactEntity, Contact } from './Contact';
-import { UserEntity } from './User';
 
 export default interface ContactRepository {
   createContact(contact: {
     alias: string;
     email: string;
-    user: UserEntity;
     authorId: string;
   }): Promise<Contact>;
   getContacts(authorId: string): Promise<Contact[]>;
