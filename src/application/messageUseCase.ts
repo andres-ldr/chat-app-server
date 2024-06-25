@@ -22,18 +22,14 @@ export default class MessageUseCase {
 
   async sendMessage(message: MsgEntity) {
     const messageCreated = await this.messageRepository.postMessage(message);
-    const sender = await this.userRepository.getUserById(message.senderId);
-    const messagesWithSenderData = { ...messageCreated, sender };
-    return messagesWithSenderData;
+
+    if (!messageCreated) throw new Error('Message not sent');
+    return messageCreated;
   }
 
   async getMessages(chatId: string) {
     const messages = await this.messageRepository.getMessages(chatId);
-    const messagesWithSenderData = messages.map(async (message: MsgEntity) => {
-      const sender = await this.userRepository.getUserById(message.senderId);
-      return { ...message, sender };
-    });
-    return Promise.all(messagesWithSenderData);
+    return messages;
   }
 
   async editMessage(message: MsgEntity) {

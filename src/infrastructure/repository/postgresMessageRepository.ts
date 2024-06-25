@@ -54,6 +54,17 @@ export default class PostgresMessageRepository implements MessageRepository {
       where: {
         chatId,
       },
+      include: {
+        sender: {
+          select: {
+            uid: true,
+            name: true,
+            lastName: true,
+            email: true,
+            profileImage: true,
+          },
+        },
+      },
     });
   }
 
