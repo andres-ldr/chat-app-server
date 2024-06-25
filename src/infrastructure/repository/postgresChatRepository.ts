@@ -106,13 +106,7 @@ export default class PostgresChatRepository implements ChatRepository {
   }: {
     cid: string;
     adminId: string;
-  }): Promise<{
-    cid: string;
-    alias: string | null;
-    creationDate: Date;
-    chatImage: string | null;
-    isGroup: boolean;
-  }> {
+  }): Promise<Chat> {
     return await this.prisma.chat.delete({
       where: {
         cid: cid,
