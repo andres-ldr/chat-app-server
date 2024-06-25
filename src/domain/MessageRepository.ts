@@ -4,7 +4,9 @@ import { Message, MsgEntity } from './Message';
 const prisma = prismaClient.getInstance();
 
 export default interface MessageRepository {
-  postMessage(message: MsgEntity): Promise<Message>;
+  postMessage(
+    message: MsgEntity
+  ): Promise<ReturnType<typeof prisma.message.create>>;
   getMessages(
     chatId: string
   ): Promise<ReturnType<typeof prisma.message.findMany>>;

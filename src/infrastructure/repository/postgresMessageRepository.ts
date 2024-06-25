@@ -30,7 +30,7 @@ export default class PostgresMessageRepository implements MessageRepository {
     content,
     type,
     senderId,
-  }: MsgEntity): Promise<Message> {
+  }: MsgEntity): Promise<ReturnType<typeof this.prisma.message.create>> {
     return await this.prisma.message.create({
       data: {
         chatId,
@@ -41,9 +41,9 @@ export default class PostgresMessageRepository implements MessageRepository {
     });
   }
 
-  async getMessages(chatId: string): Promise<
-  ReturnType<typeof this.prisma.message.findMany>
-  > {
+  async getMessages(
+    chatId: string
+  ): Promise<ReturnType<typeof this.prisma.message.findMany>> {
     return await this.prisma.message.findMany({
       where: {
         chatId,
