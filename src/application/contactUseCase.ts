@@ -1,13 +1,14 @@
 import { ContactEntity } from '../domain/Contact';
 import ContactRepository from '../domain/ContactRepository';
+import { UserEntity } from '../domain/User';
 import UserRepository from '../domain/UserRepository';
 
 export default class ContactUseCases {
   private static instance: ContactUseCases;
 
   constructor(
-    private readonly contactRepository: ContactRepository,
-    private readonly userRepository: UserRepository
+    private readonly contactRepository: ContactRepository<ContactEntity>,
+    private readonly userRepository: UserRepository<UserEntity>
   ) {}
 
   async createContact(contact: {
@@ -15,9 +16,13 @@ export default class ContactUseCases {
     authorId: string;
     alias: string;
   }) {
+    const contactExists = await this.contactRepository.contactExists(
+      contact.authorId,
+      contact.email
+    );
+    if (contactExists) throw new Error('Contact already exists');
     const newContact = await this.contactRepository.createContact(contact);
-    if (!newContact) throw new Error('Error creating contact');
-    return { messsage: 'Contact created successfully' };
+    return newContact
   }
 
   async getContacts(authorId: string) {
@@ -30,7 +35,7 @@ export default class ContactUseCases {
       authorId,
       contactId
     );
-    if (!contact) return null;
+    if (!contact) throw new Error('Contact not found');
 
     return contact;
   }
@@ -40,6 +45,7 @@ export default class ContactUseCases {
       authorId,
       email
     );
+    if (!contact) throw new Error('Contact not found');
     return contact;
   }
 
@@ -51,8 +57,8 @@ export default class ContactUseCases {
       authorId,
       contact
     );
-    if (!updatedContact) throw new Error('Error updating contact');
-    return { message: 'Contact updated successfully' };
+
+    return updatedContact;
   }
 
   async deleteContact(authorId: string, contactId: string) {
@@ -60,8 +66,8 @@ export default class ContactUseCases {
   }
 
   public static getInstance(
-    contactRepository: ContactRepository,
-    userRepository: UserRepository
+    contactRepository: ContactRepository<ContactEntity>,
+    userRepository: UserRepository<UserEntity>
   ) {
     if (!this.instance) {
       this.instance = new ContactUseCases(contactRepository, userRepository);

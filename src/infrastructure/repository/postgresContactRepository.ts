@@ -1,21 +1,36 @@
 import { PrismaClient } from '@prisma/client';
-import ContactRepository, {
-  ContactCreateType,
-} from '../../domain/ContactRepository';
+import ContactRepository from '../../domain/ContactRepository';
 import { ContactEntity } from '../../domain/Contact';
+import { Contact } from '@prisma/client';
+import { UserEntity } from '../../domain/User';
 
-export default class PostgresContactRepository implements ContactRepository {
+export default class PostgresContactRepository
+  implements ContactRepository<Contact>
+{
   private static instance: PostgresContactRepository;
 
   constructor(readonly prisma: PrismaClient) {}
 
+  async contactExists(
+    authorId: string,
+    email: string
+  ): Promise<Contact | null> {
+    return await this.prisma.contact.findFirst({
+      where: {
+        authorId,
+        email,
+      },
+    });
+  }
+
   async getContactById(
     authorId: string,
     contactId: string
-  ): Promise<ReturnType<typeof this.prisma.contact.findUnique>> {
+  ): Promise<(Contact & Partial<UserEntity>) | null> {
     const contact = await this.prisma.contact.findUnique({
       where: {
         contactId,
+        authorId,
       },
       include: {
         user: {
@@ -35,7 +50,7 @@ export default class PostgresContactRepository implements ContactRepository {
   async getContactByEmail(
     authorId: string,
     email: string
-  ): Promise<ReturnType<typeof this.prisma.contact.findFirst>> {
+  ): Promise<(Contact & Partial<UserEntity>) | null> {
     const contact = await this.prisma.contact.findFirst({
       where: {
         authorId,
@@ -59,7 +74,7 @@ export default class PostgresContactRepository implements ContactRepository {
   async updateContact(
     authorId: string,
     contact: ContactEntity
-  ): Promise<ReturnType<typeof this.prisma.contact.update>> {
+  ): Promise<(Contact & Partial<UserEntity>) | null> {
     const updatedContact = await this.prisma.contact.update({
       where: {
         contactId: contact.contactId,
@@ -68,16 +83,17 @@ export default class PostgresContactRepository implements ContactRepository {
       data: {
         alias: contact.alias,
         email: contact.email,
-        // user: {
-        //   connect: {
-        //     uid: contact.userId,
-        //   },
-        // },
-        // author: {
-        //   connect: {
-        //     uid: authorId,
-        //   },
-        // },
+      },
+      include: {
+        user: {
+          select: {
+            uid: true,
+            name: true,
+            lastName: true,
+            email: true,
+            profileImage: true,
+          },
+        },
       },
     });
     return updatedContact;
@@ -85,7 +101,7 @@ export default class PostgresContactRepository implements ContactRepository {
 
   async getContacts(
     authorId: string
-  ): Promise<ReturnType<typeof this.prisma.contact.findMany>> {
+  ): Promise<(Contact & Partial<UserEntity>)[] | null> {
     return await this.prisma.contact.findMany({
       where: {
         authorId,
@@ -108,7 +124,7 @@ export default class PostgresContactRepository implements ContactRepository {
     email: string;
     authorId: string;
     alias: string;
-  }): Promise<ContactCreateType> {
+  }): Promise<Contact & Partial<UserEntity>> {
     const newContact = await this.prisma.contact.create({
       data: {
         alias: contact.alias,
@@ -124,18 +140,26 @@ export default class PostgresContactRepository implements ContactRepository {
           },
         },
       },
+      include: {
+        user: {
+          select: {
+            uid: true,
+            name: true,
+            lastName: true,
+            email: true,
+            profileImage: true,
+          },
+        },
+      },
     });
     return newContact;
   }
 
-  async deleteContact(
-    authorId: string,
-    contactId: string
-  ): Promise<ReturnType<typeof this.prisma.contact.delete>> {
+  async deleteContact(authorId: string, contactId: string): Promise<Contact> {
     const deletedContact = await this.prisma.contact.delete({
       where: {
         contactId,
-        // authorId,
+        authorId,
       },
     });
     return deletedContact;

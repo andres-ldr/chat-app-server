@@ -23,7 +23,7 @@ export default class PostgresUserRepository implements UserRepository<User> {
     });
   }
 
-  async updateUser(uid: string, user: User): Promise<User> {
+  async updateUser(uid: string, user: User): Promise<Partial<User>> {
     const { password } = user;
     if (password) {
       user.password = await bcrypt.hash(password, 10);
@@ -32,6 +32,13 @@ export default class PostgresUserRepository implements UserRepository<User> {
     return await this.prisma.user.update({
       where: { uid },
       data: user,
+      select: {
+        uid: true,
+        name: true,
+        lastName: true,
+        email: true,
+        profileImage: true,
+      },
     });
   }
 

@@ -54,7 +54,10 @@ export default class ContactController {
         authorId,
       });
 
-      return res.status(201).json(contactCreated);
+      return res.status(201).json({
+        messsage: 'Contact created successfully',
+        contact: contactCreated,
+      });
     } catch (error) {
       next(error);
     }
@@ -70,7 +73,9 @@ export default class ContactController {
         authorId,
         contact
       );
-      return res.status(200).json(updatedContact);
+      return res
+        .status(200)
+        .json({ message: 'Contact updated successfully', updatedContact });
     } catch (error) {
       next(error);
     }
@@ -83,7 +88,12 @@ export default class ContactController {
         authorId,
         contactId
       );
-      return res.status(200).json(contactDeleted);
+      return res
+        .status(200)
+        .json({
+          message: 'Contact deleted successfully',
+          contact: contactDeleted,
+        });
     } catch (error) {
       next(error);
     }

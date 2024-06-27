@@ -1,6 +1,7 @@
 import prismaClient from '../infrastructure/config/prisma-client';
 // import { Chat } from './Chat';
 
+
 const prisma = prismaClient.getInstance();
 
 export type ChatCreateType = ReturnType<typeof prisma.chat.create>;

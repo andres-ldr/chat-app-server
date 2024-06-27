@@ -6,7 +6,7 @@ export default interface UserRepository<T extends UserEntity> {
   getUserByEmail(email: string): Promise<T | null>;
   getUsersByName(name: string): Promise<T[]>;
   getUsersByEmail(email: string): Promise<T[]>;
-  updateUser(uid: string, user: T): Promise<T>;
+  updateUser(uid: string, user: T): Promise<Partial<T>>;
   deleteUser(uid: string): Promise<T>;
   userExists(email: string): Promise<T | null>;
   getMembersOfAChat(cid: string): Promise<T[]>;
