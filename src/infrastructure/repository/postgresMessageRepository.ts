@@ -1,8 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Message } from '@prisma/client';
 import MessageRepository from '../../domain/MessageRepository';
-import { Message, MsgEntity } from '../../domain/Message';
+import { MsgEntity } from '../../domain/Message';
 
-export default class PostgresMessageRepository implements MessageRepository {
+export default class PostgresMessageRepository
+  implements MessageRepository<Message>
+{
   static instance: PostgresMessageRepository;
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -30,7 +32,7 @@ export default class PostgresMessageRepository implements MessageRepository {
     content,
     type,
     senderId,
-  }: MsgEntity): Promise<ReturnType<typeof this.prisma.message.create>> {
+  }: MsgEntity): Promise<Message> {
     return await this.prisma.message.create({
       data: {
         chatId,
@@ -43,7 +45,7 @@ export default class PostgresMessageRepository implements MessageRepository {
 
   async getMessages(
     chatId: string
-  ): Promise<ReturnType<typeof this.prisma.message.findMany>> {
+  ): Promise<Message[]> {
     return await this.prisma.message.findMany({
       where: {
         chatId,
