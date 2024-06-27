@@ -1,14 +1,11 @@
 import { ContactEntity } from '../domain/Contact';
 import ContactRepository from '../domain/ContactRepository';
-import { UserEntity } from '../domain/User';
-import UserRepository from '../domain/UserRepository';
 
 export default class ContactUseCases {
   private static instance: ContactUseCases;
 
   constructor(
     private readonly contactRepository: ContactRepository<ContactEntity>,
-    private readonly userRepository: UserRepository<UserEntity>
   ) {}
 
   async createContact(contact: {
@@ -67,10 +64,9 @@ export default class ContactUseCases {
 
   public static getInstance(
     contactRepository: ContactRepository<ContactEntity>,
-    userRepository: UserRepository<UserEntity>
   ) {
     if (!this.instance) {
-      this.instance = new ContactUseCases(contactRepository, userRepository);
+      this.instance = new ContactUseCases(contactRepository);
     }
 
     return this.instance;
