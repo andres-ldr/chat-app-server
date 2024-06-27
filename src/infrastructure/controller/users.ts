@@ -4,10 +4,7 @@ import { HttpStatusCode } from '../../Utils/httpCodes';
 import UserUsesCases from '../../application/userUseCase';
 
 export default class UserController {
-  constructor(private userUseCase: UserUsesCases) {
-    // this.name = 'andres';
-    // this.postNewUser = this.postNewUser.bind(this);
-  }
+  constructor(private userUseCase: UserUsesCases) {}
 
   postNewUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -17,7 +14,10 @@ export default class UserController {
       const { name, lastName, email, profileImage } =
         await this.userUseCase.addNewUser(newUser);
 
-      return res.status(201).json({ name, lastName, email, profileImage });
+      return res.status(201).json({
+        message: 'User created',
+        user: { name, lastName, email, profileImage },
+      });
     } catch (err) {
       return next(err);
     }
@@ -34,7 +34,7 @@ export default class UserController {
         uid,
         updatedUserData
       );
-      return res.status(201).json(updatedUser);
+      return res.status(201).json({ message: 'User updated', updatedUser });
     } catch (err) {
       return next(err);
     }
@@ -44,7 +44,7 @@ export default class UserController {
     const uid = req.body.uid;
     try {
       const deletedUser = await this.userUseCase.deleteUser(uid);
-      return res.status(200).json(deletedUser);
+      return res.status(200).json({ message: 'User Deleted', deletedUser });
     } catch (error) {
       next(error);
     }

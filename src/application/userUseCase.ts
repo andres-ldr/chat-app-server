@@ -4,9 +4,9 @@ import UserRepository from '../domain/UserRepository';
 export default class UserUsesCases {
   private static instance: UserUsesCases;
 
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(private readonly userRepository: UserRepository<UserEntity>) {}
 
-  public static getInstance(userRepository: UserRepository) {
+  public static getInstance(userRepository: UserRepository<UserEntity>) {
     if (!this.instance) {
       this.instance = new UserUsesCases(userRepository);
     }
@@ -14,6 +14,8 @@ export default class UserUsesCases {
   }
 
   public async addNewUser(newUser: UserEntity) {
+    const userExists = await this.userRepository.userExists(newUser.email);
+    if (userExists) throw new Error('Email already exists');
     const newUserCreated = await this.userRepository.postNewUser(newUser);
     return newUserCreated;
   }
