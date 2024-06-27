@@ -1,29 +1,24 @@
 import { MsgEntity } from '../domain/Message';
 import MessageRepository from '../domain/MessageRepository';
-import UserRepository from '../domain/UserRepository';
 
 export default class MessageUseCase {
   private static instance: MessageUseCase;
 
   constructor(
-    private readonly messageRepository: MessageRepository,
-    private readonly userRepository: UserRepository
+    private readonly messageRepository: MessageRepository<MsgEntity>,
   ) {}
 
   public static getInstance(
-    messageRepository: MessageRepository,
-    userRepository: UserRepository
+    messageRepository: MessageRepository<MsgEntity>,
   ) {
     if (!this.instance) {
-      this.instance = new MessageUseCase(messageRepository, userRepository);
+      this.instance = new MessageUseCase(messageRepository);
     }
     return this.instance;
   }
 
   async sendMessage(message: MsgEntity) {
     const messageCreated = await this.messageRepository.postMessage(message);
-
-    if (!messageCreated) throw new Error('Message not sent');
     return messageCreated;
   }
 

@@ -4,7 +4,6 @@ import { Server as WebSocketServer } from 'socket.io';
 import prismaClient from './infrastructure/config/prisma-client';
 import PostgresMessageRepository from './infrastructure/repository/postgresMessageRepository';
 import MessageUseCase from './application/messageUseCase';
-import PostgresUserRepository from './infrastructure/repository/postgresUserRepository';
 import 'dotenv/config';
 
 declare module 'express-session' {
@@ -27,11 +26,7 @@ const io = new WebSocketServer(server, {
 
 const prisma = prismaClient.getInstance();
 const postgresMessageRepository = PostgresMessageRepository.getInstance(prisma);
-const postgresUserRepository = PostgresUserRepository.getInstance(prisma);
-const messageUseCase = MessageUseCase.getInstance(
-  postgresMessageRepository,
-  postgresUserRepository
-);
+const messageUseCase = MessageUseCase.getInstance(postgresMessageRepository);
 
 io.on('connection', (socket) => {
   socket.on('join', async ({ cid }) => {
