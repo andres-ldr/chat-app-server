@@ -10,7 +10,9 @@ export default class PostgresUserRepository implements UserRepository<User> {
   async getUsersByEmail(email: string): Promise<User[]> {
     return await this.prisma.user.findMany({
       where: {
-        email,
+        email: {
+          contains: email,
+        },
       },
     });
   }
