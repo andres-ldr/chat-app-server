@@ -50,14 +50,10 @@ export default class UserController {
     }
   };
 
-  getUsersByNameOrEmail = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  getUsersByEmail = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email } = req.body;
-      const users = await this.userUseCase.getUserByEmail(email);
+      const users = await this.userUseCase.getUserByEmail(email);      
       return res.status(200).json(users);
     } catch (error) {
       next(error);
