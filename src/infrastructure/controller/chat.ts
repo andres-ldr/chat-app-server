@@ -20,7 +20,7 @@ export default class ChatController {
       const authorId = req.session.passport!.user;
       members.push(authorId);
       const chat = await this.chatUseCases.createChat(members);
-      return res.status(201).json(chat);
+      return res.status(201).json({ message: 'Chat created', chat });
     } catch (error) {
       next(error);
     }
@@ -31,7 +31,7 @@ export default class ChatController {
       const uid = req.session.passport!.user;
       const cid = req.body.cid;
       const chat = await this.chatUseCases.deleteChat(cid, uid);
-      return res.status(200).send(chat);
+      return res.status(200).send({ message: 'Chat deleted', chat });
     } catch (error) {
       next(error);
     }
@@ -39,63 +39,74 @@ export default class ChatController {
 
   postNewGroup = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // const userId = req.session.passport!.user;
-      let chatData: {
+      const userId = req.session.passport!.user;
+      const chatData: {
         alias: string;
         chatImage: string;
         admins: string[];
         members: string[];
       } = req.body;
-      chatData = {
-        ...chatData,
-        admins: Array.isArray(chatData.admins)
-          ? chatData.admins
-          : [chatData.admins],
-        members: Array.isArray(chatData.members)
-          ? chatData.members
-          : [chatData.members],
-      };
+
+      if (!chatData.admins) {
+        chatData.admins = [userId];
+      } else {
+        if (!Array.isArray(chatData.admins)) {
+          chatData.admins = [chatData.admins];
+          chatData.admins.push(userId);
+        } else {
+          chatData.admins.push(userId);
+        }
+      }
+
+      if (!chatData.members) {
+        chatData.members = [userId];
+      } else {
+        if (!Array.isArray(chatData.members)) {
+          chatData.members = [chatData.members];
+          chatData.members.push(userId);
+        } else {
+          chatData.members.push(userId);
+        }
+      }
 
       chatData.chatImage = req.file?.path || 'uploads/images/default.jpg';
-      // chatData.members.push(userId); // NOTE: can be done in the client side
-      // chatData.admins.push(userId);
 
       const chat = await this.chatUseCases.createGroup(chatData);
-      return res.status(201).json(chat);
+      return res.status(201).json({ message: 'Group created', chat });
     } catch (error) {
       next(error);
     }
   };
 
-  // addMembersToGroup = async (
-  //   req: Request,
-  //   res: Response,
-  //   next: NextFunction
-  // ) => {
-  //   try {
-  //     const chatData = req.body;
-  //     chatData.adminId = req.session.passport!.user;
-  //     const chat = await this.chatUseCases.addMembersToGroup(chatData);
-  //     return res.status(200).json(chat);
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
+  addMembersToGroup = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const chatData = req.body;
+      chatData.adminId = req.session.passport!.user;
+      const chat = await this.chatUseCases.addMembersToGroup(chatData);
+      return res.status(200).json({ message: 'Members added', chat });
+    } catch (error) {
+      next(error);
+    }
+  };
 
-  // removeMembersFromGroup = async (
-  //   req: Request,
-  //   res: Response,
-  //   next: NextFunction
-  // ) => {
-  //   try {
-  //     const chatData = req.body;
-  //     chatData.adminId = req.session.passport!.user;
-  //     const chat = await this.chatUseCases.removeMembersFromGroup(chatData);
-  //     return res.status(200).json(chat);
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
+  removeMembersFromGroup = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const chatData = req.body;
+      chatData.adminId = req.session.passport!.user;
+      const chat = await this.chatUseCases.removeMembersFromGroup(chatData);
+      return res.status(200).json({ message: 'Members removed', chat });
+    } catch (error) {
+      next(error);
+    }
+  };
 
   updateGroup = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -104,7 +115,7 @@ export default class ChatController {
       const adminId = req.session.passport!.user;
 
       const chat = await this.chatUseCases.updateGroup(chatData, adminId);
-      return res.status(200).json(chat);
+      return res.status(200).json({ message: 'Group updated', chat });
     } catch (error) {
       next(error);
     }
@@ -115,7 +126,7 @@ export default class ChatController {
       const chatData = req.body;
       chatData.adminId = req.session.passport!.user;
       const chat = await this.chatUseCases.deleteGroup(chatData);
-      return res.status(200).json(chat);
+      return res.status(200).json({ message: 'Group deleted', chat });
     } catch (error) {
       next(error);
     }
