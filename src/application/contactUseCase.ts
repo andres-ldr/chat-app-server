@@ -5,7 +5,7 @@ export default class ContactUseCases {
   private static instance: ContactUseCases;
 
   constructor(
-    private readonly contactRepository: ContactRepository<ContactEntity>,
+    private readonly contactRepository: ContactRepository<ContactEntity>
   ) {}
 
   async createContact(contact: {
@@ -17,9 +17,10 @@ export default class ContactUseCases {
       contact.authorId,
       contact.email
     );
+    // Check if emails exist?
     if (contactExists) throw new Error('Contact already exists');
     const newContact = await this.contactRepository.createContact(contact);
-    return newContact
+    return newContact;
   }
 
   async getContacts(authorId: string) {
@@ -63,7 +64,7 @@ export default class ContactUseCases {
   }
 
   public static getInstance(
-    contactRepository: ContactRepository<ContactEntity>,
+    contactRepository: ContactRepository<ContactEntity>
   ) {
     if (!this.instance) {
       this.instance = new ContactUseCases(contactRepository);
