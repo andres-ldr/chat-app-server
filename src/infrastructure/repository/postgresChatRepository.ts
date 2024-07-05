@@ -1,104 +1,77 @@
-import { PrismaClient } from '@prisma/client';
-import ChatRepository, { ChatCreateType } from '../../domain/ChatRepository';
-// import { Chat } from '../../domain/Chat';
+import { Chat, Message, PrismaClient, User } from '@prisma/client';
+import ChatRepository, { ChatDetails } from '../../domain/ChatRepository';
 
-export default class PostgresChatRepository implements ChatRepository {
+export default class PostgresChatRepository
+  implements ChatRepository<Chat, User, Message>
+{
   private static instance: PostgresChatRepository;
   constructor(private readonly prisma: PrismaClient) {}
 
-  // async deleteAdmins(chatData: { cid: string; userIds: string[] }): Promise<{
-  //   cid: string;
-  //   alias: string | null;
-  //   creationDate: Date;
-  //   chatImage: string | null;
-  // }> {
-  //   return await this.prisma.chat.update({
-  //     where: {
-  //       cid: chatData.cid,
-  //     },
-  //     data: {
-  //       admins: {
-  //         disconnect: chatData.userIds.map((e: string) => {
-  //           return {
-  //             uid: e,
-  //           };
-  //         }),
-  //       },
-  //     },
-  //   });
-  // }
+  async addAdminsToGroup(
+    chatData: { cid: string; admins: string[] },
+    adminId: string
+  ): Promise<Chat> {
+    return await this.prisma.chat.update({
+      data: {
+        admins: {
+          connect: chatData.admins.map((e: string) => ({
+            uid: e,
+          })),
+        },
+      },
+      where: {
+        cid: chatData.cid,
+        admins: {
+          some: {
+            uid: adminId,
+          },
+        },
+      },
+    });
+  }
+  async removeAdminsFromGroup(
+    chatData: { cid: string; admins: string[] },
+    adminId: string
+  ): Promise<Chat> {
+    return await this.prisma.chat.update({
+      where: {
+        cid: chatData.cid,
+        admins: {
+          some: {
+            uid: adminId,
+          },
+        },
+      },
+      data: {
+        admins: {
+          disconnect: chatData.admins.map((e: string) => ({ uid: e })),
+        },
+      },
+    });
+  }
 
-  // async postAdmins({
-  //   cid,
-  //   userIds,
-  // }: {
-  //   cid: string;
-  //   userIds: string[];
-  // }): Promise<{
-  //   cid: string;
-  //   alias: string | null;
-  //   creationDate: Date;
-  //   chatImage: string | null;
-  //   isGroup: boolean;
-  // }> {
-  //   return this.prisma.chat.update({
-  //     where: {
-  //       cid,
-  //     },
-  //     data: {
-  //       admins: {
-  //         connect: userIds.map((e: string) => {
-  //           return {
-  //             uid: e,
-  //           };
-  //         }),
-  //       },
-  //     },
-  //   });
-  // }
-
-  // async checkIfUserIsAdmin(
-  //   cid: string,
-  //   userId: string
-  // ): Promise<{
-  //   cid: string;
-  //   alias: string | null;
-  //   creationDate: Date;
-  //   chatImage: string | null;
-  //   isGroup: boolean;
-  // } | null> {
-  //   return await this.prisma.chat.findFirst({
-  //     where: {
-  //       cid: cid,
-  //       admins: {
-  //         some: {
-  //           uid: userId,
-  //         },
-  //       },
-  //     },
-  //   });
-  // }
-
-  // async exitGroup({ cid, userId }: { cid: string; userId: string }): Promise<{
-  //   cid: string;
-  //   alias: string | null;
-  //   creationDate: Date;
-  //   chatImage: string | null;
-  //   isGroup: boolean;
-  // }> {
-  //   return await this.prisma.chat.update({
-  //     where: {
-  //       cid,
-  //     },
-  //     data: {
-  //       members: {
-  //         disconnect: {
-  //           uid: userId,
-  //         },
-  //       },
-  //     },
-  //   });
-  // }
+  async addMembersToGroup(
+    chatData: { cid: string; members: string[] },
+    adminId: string
+  ): Promise<Chat> {
+    return await this.prisma.chat.update({
+      where: {
+        cid: chatData.cid,
+        admins: {
+          some: {
+            uid: adminId,
+          },
+        },
+      },
+      data: {
+        members: {
+          connect: chatData.members.map((e: string) => ({
+            uid: e,
+          })),
+        },
+      },
+    });
+  }
 
   async deleteGroup({
     cid,
@@ -106,7 +79,7 @@ export default class PostgresChatRepository implements ChatRepository {
   }: {
     cid: string;
     adminId: string;
-  }): Promise<ReturnType<typeof this.prisma.chat.delete>> {
+  }): Promise<Chat> {
     return await this.prisma.chat.delete({
       where: {
         cid: cid,
@@ -124,17 +97,17 @@ export default class PostgresChatRepository implements ChatRepository {
       cid,
       alias,
       chatImage,
-      admins,
-      members,
-    }: {
+    }: // admins,
+    // members,
+    {
       cid: string;
-      alias: string;
-      chatImage: string | null;
-      admins: string[];
-      members: string[];
+      alias?: string;
+      chatImage?: string;
+      admins?: string[];
+      members?: string[];
     },
     adminId: string
-  ): Promise<ReturnType<typeof this.prisma.chat.update>> {
+  ): Promise<Chat> {
     return await this.prisma.chat.update({
       where: {
         cid,
@@ -147,118 +120,66 @@ export default class PostgresChatRepository implements ChatRepository {
       data: {
         alias,
         chatImage,
-        admins: {
-          connect: admins.map((e: string) => {
-            return {
-              uid: e,
-            };
-          }),
-        },
-        members: {
-          connect: members.map((e: string) => {
-            return {
-              uid: e,
-            };
-          }),
-        },
+        // admins: {
+        //   connect:
+        //     admins &&
+        //     admins.map((e: string) => {
+        //       return {
+        //         uid: e,
+        //       };
+        //     }),
+        // },
+        // members: {
+        //   connect:
+        //     members &&
+        //     members.map((e: string) => {
+        //       return {
+        //         uid: e,
+        //       };
+        //     }),
+        // },
       },
     });
   }
 
-  // async removeMembersFromGroup({
-  //   cid,
-  //   members,
-  //   adminId,
-  // }: {
-  //   cid: string;
-  //   members: string[];
-  //   adminId: string;
-  // }): Promise<Chat> {
-  //   return await this.prisma.chat.update({
-  //     where: {
-  //       cid: cid,
-  //       admins: {
-  //         some: {
-  //           uid: adminId,
-  //         },
-  //       },
-  //     },
-  //     data: {
-  //       members: {
-  //         disconnect: members.map((e: string) => {
-  //           return {
-  //             uid: e,
-  //           };
-  //         }),
-  //       },
-  //     },
-  //   });
-  // }
-
-  // async addMembersToGroup(chatData: {
-  //   cid: string;
-  //   members: string[];
-  //   adminId: string;
-  // }): Promise<Chat> {
-  //   return await this.prisma.chat.update({
-  //     where: {
-  //       cid: chatData.cid,
-  //       admins: {
-  //         some: {
-  //           uid: chatData.adminId,
-  //         },
-  //       },
-  //     },
-  //     data: {
-  //       members: {
-  //         connect: chatData.members.map((e: string) => {
-  //           return {
-  //             uid: e,
-  //           };
-  //         }),
-  //       },
-  //     },
-  //     include: {
-  //       members: {
-  //         select: {
-  //           uid: true,
-  //           name: true,
-  //           lastName: true,
-  //           email: true,
-  //           profileImage: true,
-  //         },
-  //       },
-  //       admins: {
-  //         select: {
-  //           uid: true,
-  //           name: true,
-  //           lastName: true,
-  //           email: true,
-  //           profileImage: true,
-  //         },
-  //       },
-  //       messages: {
-  //         select: {
-  //           mid: true,
-  //           content: true,
-  //           sender: true,
-  //           creationDate: true,
-  //         },
-  //         orderBy: {
-  //           creationDate: 'desc',
-  //         },
-  //         take: 1,
-  //       },
-  //     },
-  //   });
-  // }
+  async removeMembersFromGroup(
+    {
+      cid,
+      members,
+    }: {
+      cid: string;
+      members: string[];
+    },
+    adminId: string
+  ): Promise<Chat> {
+    return await this.prisma.chat.update({
+      where: {
+        cid: cid,
+        admins: {
+          some: {
+            uid: adminId,
+          },
+        },
+      },
+      data: {
+        members: {
+          disconnect: members.map((e: string) => ({ uid: e })),
+        },
+      },
+    });
+  }
 
   async postNewGroup(chatData: {
     alias: string;
     chatImage: string;
     admins: string[];
     members: string[];
-  }): Promise<ChatCreateType> {
+  }): Promise<
+    Chat & {
+      members: Partial<User>[];
+      admins: Partial<User>[];
+    }
+  > {
     const newGroup = await this.prisma.chat.create({
       data: {
         alias: chatData.alias,
@@ -298,25 +219,13 @@ export default class PostgresChatRepository implements ChatRepository {
             profileImage: true,
           },
         },
-        messages: {
-          select: {
-            mid: true,
-            content: true,
-            sender: true,
-            creationDate: true,
-          },
-          orderBy: {
-            creationDate: 'desc',
-          },
-          take: 1,
-        },
       },
     });
 
     return newGroup;
   }
 
-  async deleteChat(cid: string, uid: string): Promise<ReturnType<typeof this.prisma.chat.delete>> {
+  async deleteChat(cid: string, uid: string): Promise<Chat> {
     return await this.prisma.chat.delete({
       where: {
         cid: cid,
@@ -329,7 +238,9 @@ export default class PostgresChatRepository implements ChatRepository {
     });
   }
 
-  async getChatByMembers(members: string[]): Promise<ReturnType<typeof this.prisma.chat.findFirst>> {
+  async getChatByMembers(
+    members: string[]
+  ): Promise<ChatDetails<Chat, User, Message>> {
     return this.prisma.chat.findFirst({
       where: {
         members: {
@@ -375,7 +286,7 @@ export default class PostgresChatRepository implements ChatRepository {
     });
   }
 
-  async getChatById(id: string): Promise<ReturnType<typeof this.prisma.chat.findUnique>> {
+  async getChatById(id: string): Promise<ChatDetails<Chat, User, Message>> {
     return this.prisma.chat.findUnique({
       where: {
         cid: id,
@@ -415,7 +326,7 @@ export default class PostgresChatRepository implements ChatRepository {
     });
   }
 
-  async getChats(userId: string): Promise<ReturnType<typeof this.prisma.chat.findMany>> {
+  async getChats(userId: string): Promise<ChatDetails<Chat, User, Message>[]> {
     return await this.prisma.chat.findMany({
       where: {
         members: {
@@ -459,13 +370,11 @@ export default class PostgresChatRepository implements ChatRepository {
     });
   }
 
-  async postNewChat(members: string[]): Promise<ReturnType<typeof this.prisma.chat.create>> {
-    return this.prisma.chat.create({
+  async postNewChat(members: string[]): Promise<Chat & Partial<User>> {
+    return await this.prisma.chat.create({
       data: {
         members: {
-          connect: members.map((e: string) => ({
-            uid: e,
-          })),
+          connect: members.map((uid: string) => ({ uid })),
         },
       },
       include: {
