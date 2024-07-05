@@ -40,12 +40,21 @@ export default class PostgresMessageRepository
         type,
         senderId,
       },
+      include: {
+        sender: {
+          select: {
+            uid: true,
+            name: true,
+            lastName: true,
+            email: true,
+            profileImage: true,
+          },
+        },
+      },
     });
   }
 
-  async getMessages(
-    chatId: string
-  ): Promise<Message[]> {
+  async getMessages(chatId: string): Promise<Message[]> {
     return await this.prisma.message.findMany({
       where: {
         chatId,
