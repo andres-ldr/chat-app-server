@@ -55,7 +55,7 @@ export default class ContactController {
       });
 
       return res.status(201).json({
-        messsage: 'Contact created successfully',
+        message: 'Contact created successfully',
         contact: contactCreated,
       });
     } catch (error) {
@@ -88,12 +88,10 @@ export default class ContactController {
         authorId,
         contactId
       );
-      return res
-        .status(200)
-        .json({
-          message: 'Contact deleted successfully',
-          contact: contactDeleted,
-        });
+      return res.status(200).json({
+        message: 'Contact deleted successfully',
+        contact: contactDeleted,
+      });
     } catch (error) {
       next(error);
     }
