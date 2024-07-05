@@ -1,21 +1,29 @@
+import { ChatEntity } from '../domain/Chat';
 import ChatRepository from '../domain/ChatRepository';
+import { MsgEntity } from '../domain/Message';
+import { UserEntity } from '../domain/User';
 import UserRepository from '../domain/UserRepository';
 
 export default class ChatUseCases {
   private static instance: ChatUseCases;
 
   constructor(
-    private readonly chatRepository: ChatRepository,
-    private readonly userRepository: UserRepository
+    private readonly chatRepository: ChatRepository<
+      ChatEntity,
+      UserEntity,
+      MsgEntity
+    >,
+    private readonly userRepository: UserRepository<UserEntity>
   ) {}
 
   public async createChat(members: string[]) {
     if (members.length < 2) throw new Error('Members must be at least 2');
     const chat = await this.chatRepository.getChatByMembers(members);
     if (chat) throw new Error('Chat already exists');
+
     const newChat = await this.chatRepository.postNewChat(members);
-    if (!newChat) throw new Error('Error creating chat');
-    return { message: 'Chat created' };
+
+    return newChat;
   }
 
   public async getChats(userId: string) {
@@ -25,8 +33,8 @@ export default class ChatUseCases {
 
   public async deleteChat(cid: string, uid: string) {
     const chatDeleted = await this.chatRepository.deleteChat(cid, uid);
-    if (!chatDeleted) throw new Error('Error deleting chat');
-    return { message: 'Chat deleted' };
+
+    return chatDeleted;
   }
 
   public async createGroup(chatData: {
@@ -43,70 +51,123 @@ export default class ChatUseCases {
       throw new Error("Members can't be empty");
 
     const newGroup = await this.chatRepository.postNewGroup(chatData);
-    if (!newGroup) throw new Error('Error creating group');
-    return { message: 'Group created' };
+    return newGroup;
   }
 
-  // public async addMembersToGroup(chatData: {
-  //   cid: string;
-  //   members: string[];
-  //   adminId: string;
-  // }) {
-  //   // TODO: check if member is in group already
-  //   // if true return ...
-  //   // else add to group
+  public async addMembersToGroup(chatData: {
+    cid: string;
+    members: string[];
+    adminId: string;
+  }) {
+    // TODO: check if member is in group already
+    // if true return ...
+    // else add to group
 
-  //   const chatUpdated = await this.chatRepository.addMembersToGroup(chatData);
-  //   if (!chatUpdated) throw new Error('Error adding members to group');
+    const chatUpdated = await this.chatRepository.addMembersToGroup(
+      chatData,
+      chatData.adminId
+    );
 
-  //   return { message: 'Members added to group' };
-  // }
+    return chatUpdated;
+  }
 
-  // public async removeMembersFromGroup(chatData: {
-  //   cid: string;
-  //   members: string[];
-  //   adminId: string;
-  // }) {
-  //   // TODO: check if members are in group already
-  //   // if false return ...
-  //   // else remove to group
+  public async removeMembersFromGroup(chatData: {
+    cid: string;
+    members: string[];
+    adminId: string;
+  }) {
+    // TODO: check if members are in group already
+    // if false return ...
+    // else remove to group
 
-  //   const chatUpdated = await this.chatRepository.removeMembersFromGroup(
-  //     chatData
-  //   );
+    const chatUpdated = await this.chatRepository.updateGroup(
+      chatData,
+      chatData.adminId
+    );
 
-  //   if (!chatUpdated) throw new Error('Error removing members from group');
-  //   return { message: 'Members removed from group' };
-  // }
+    return chatUpdated;
+  }
 
   public async updateGroup(
     chatData: {
       cid: string;
       alias: string;
-      chatImage: string | null;
+      chatImage: string;
       admins: string[];
       members: string[];
     },
     adminId: string
   ) {
-    // TODO: check if exist
     const chat = await this.chatRepository.getChatById(chatData.cid);
     if (!chat) {
       throw new Error('Chat not found');
     }
 
-    const groupUdated = await this.chatRepository.updateGroup(chatData, adminId);
-    if (!groupUdated) throw new Error('Error updating group');
-    console.log(groupUdated);
-    
-    return { message: 'Group updated' };
+    // When members are removed
+    if (chatData.members.length < chat.members.length) {
+      const removedMembers = chat.members.filter(
+        (user) => !chatData.members.includes(user.uid as string)
+      );
+      await this.chatRepository.removeMembersFromGroup(
+        {
+          cid: chatData.cid,
+          members: removedMembers.map((e) => e.uid as string),
+        },
+        adminId
+      );
+      // when members are added
+    } else if (chatData.members.length > chat.members.length) {
+      const addedMembers = chatData.members.filter((uid) => {
+        return !chat.members.some((e) => e.uid === uid);
+      });
+      await this.chatRepository.addMembersToGroup(
+        {
+          cid: chatData.cid,
+          members: addedMembers,
+        },
+        adminId
+      );
+    }
+
+    // When admins are removed
+    if (chatData.admins.length < chat.admins.length) {
+      const removedAdmins = chat.admins.filter(
+        (user) => !chatData.admins.includes(user.uid as string)
+      );
+      await this.chatRepository.removeAdminsFromGroup(
+        {
+          cid: chatData.cid,
+          admins: removedAdmins.map((e) => e.uid as string),
+        },
+        adminId
+      );
+      // when admins are added
+    } else if (chatData.admins.length > chat.admins.length) {
+      const addedAdmins = chatData.admins.filter((uid) => {
+        return !chat.admins.some((e) => e.uid === uid);
+      });
+      await this.chatRepository.addAdminsToGroup(
+        {
+          cid: chatData.cid,
+          admins: addedAdmins,
+        },
+        adminId
+      );
+    }
+
+    if (
+      chatData.alias !== chat.alias ||
+      chatData.chatImage !== chat.chatImage
+    ) {
+      await this.chatRepository.updateGroup(chatData, adminId);
+    }
+
+    return chat;
   }
 
   public async deleteGroup(chatData: { cid: string; adminId: string }) {
     const chat = await this.chatRepository.deleteGroup(chatData);
-    if (!chat) throw new Error('Error deleting group');
-    return { message: 'Group deleted' };  
-    
+    return chat;
   }
 
   // public async exitGroup(chatData: { cid: string; userId: string }) {
@@ -138,8 +199,8 @@ export default class ChatUseCases {
   // }
 
   public static getInstance(
-    chatRepository: ChatRepository,
-    userRepository: UserRepository
+    chatRepository: ChatRepository<ChatEntity, UserEntity, MsgEntity>,
+    userRepository: UserRepository<UserEntity>
   ) {
     if (!this.instance) {
       this.instance = new ChatUseCases(chatRepository, userRepository);
