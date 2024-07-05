@@ -1,54 +1,76 @@
-import prismaClient from '../infrastructure/config/prisma-client';
+import { ChatEntity } from './Chat';
+import { MsgEntity } from './Message';
+import { UserEntity } from './User';
 // import { Chat } from './Chat';
 
+export type ChatDetails<TChat, TUser, TMessage> =
+  | (TChat & {
+      members: Partial<TUser>[];
+      admins: Partial<TUser>[];
+      messages: Partial<TMessage>[];
+    })
+  | null;
 
-const prisma = prismaClient.getInstance();
-
-export type ChatCreateType = ReturnType<typeof prisma.chat.create>;
-
-export default interface ChatRepository {
-  getChatById(id: string): Promise<ReturnType<typeof prisma.chat.findUnique>>;
-  getChats(userId: string): Promise<ReturnType<typeof prisma.chat.findMany>>;
-  getChatByMembers(
-    members: string[]
-  ): Promise<ReturnType<typeof prisma.chat.findFirst>>;
-  deleteChat(
-    cid: string,
-    uid: string
-  ): Promise<ReturnType<typeof prisma.chat.delete>>;
-  postNewChat(
-    members: string[]
-  ): Promise<ReturnType<typeof prisma.chat.create>>;
+export default interface ChatRepository<
+  T extends ChatEntity,
+  U extends UserEntity,
+  V extends MsgEntity
+> {
+  getChatById(id: string): Promise<ChatDetails<T, U, V>>;
+  getChats(userId: string): Promise<ChatDetails<T, U, V>[]>;
+  getChatByMembers(members: string[]): Promise<ChatDetails<T, U, V>>;
+  deleteChat(cid: string, uid: string): Promise<T>;
+  postNewChat(members: string[]): Promise<T & Partial<U>>;
   postNewGroup(chatData: {
     alias: string;
     chatImage: string;
     admins: string[];
     members: string[];
-  }): Promise<ChatCreateType>;
+  }): Promise<
+    T & {
+      members: Partial<U>[];
+      admins: Partial<U>[];
+    }
+  >;
   updateGroup(
     chatData: {
       cid: string;
-      alias: string;
-      chatImage: string | null;
-      admins: string[];
+      alias?: string;
+      chatImage?: string;
+      admins?: string[];
+      members?: string[];
+    },
+    adminId: string
+  ): Promise<T>;
+  addMembersToGroup(
+    chatData: {
+      cid: string;
       members: string[];
     },
     adminId: string
-  ): Promise<ReturnType<typeof prisma.chat.delete>>;
-  // addMembersToGroup(chatData: {
-  //   cid: string;
-  //   members: string[];
-  //   adminId: string;
-  // }): Promise<Chat>;
-  // removeMembersFromGroup(chatData: {
-  //   cid: string;
-  //   members: string[];
-  //   adminId: string;
-  // }): Promise<Chat>;
-  deleteGroup(chatData: {
-    cid: string;
-    adminId: string;
-  }): Promise<ReturnType<typeof prisma.chat.delete>>;
+  ): Promise<T>;
+  removeMembersFromGroup(
+    chatData: {
+      cid: string;
+      members: string[];
+    },
+    adminId: string
+  ): Promise<T>;
+  addAdminsToGroup(
+    chatData: {
+      cid: string;
+      admins: string[];
+    },
+    adminId: string
+  ): Promise<T>;
+  removeAdminsFromGroup(
+    chatData: {
+      cid: string;
+      admins: string[];
+    },
+    adminId: string
+  ): Promise<T>;
+  deleteGroup(chatData: { cid: string; adminId: string }): Promise<T>;
   // exitGroup(cid: string, userId: string): Promise<Chat>;
   // checkIfUserIsAdmin(
   //   cid: string,
