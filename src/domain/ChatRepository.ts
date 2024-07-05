@@ -72,28 +72,4 @@ export default interface ChatRepository<
   ): Promise<T>;
   deleteGroup(chatData: { cid: string; adminId: string }): Promise<T>;
   // exitGroup(cid: string, userId: string): Promise<Chat>;
-  // checkIfUserIsAdmin(
-  //   cid: string,
-  //   userId: string
-  // ): Promise<{
-  //   cid: string;
-  //   alias: string | null;
-  //   creationDate: Date;
-  //   chatImage: string | null;
-  //   isGroup: boolean;
-  // } | null>;
-  // postAdmins(chatData: { cid: string; userIds: string[] }): Promise<{
-  //   cid: string;
-  //   alias: string | null;
-  //   creationDate: Date;
-  //   chatImage: string | null;
-  //   isGroup: boolean;
-  // }>;
-  // deleteAdmins(chatData: { cid: string; userIds: string[] }): Promise<{
-  //   cid: string;
-  //   alias: string | null;
-  //   creationDate: Date;
-  //   chatImage: string | null;
-  //   isGroup: boolean;
-  // }>;
 }
