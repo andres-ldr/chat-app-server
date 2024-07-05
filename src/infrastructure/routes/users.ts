@@ -15,7 +15,7 @@ const userUseCases = UserUsesCases.getInstance(postgresUserRepository);
 
 const userController = new UserController(userUseCases);
 
-usersRouter.post('/get', userController.getUsersByNameOrEmail);
+usersRouter.post('/get', userController.getUsersByEmail);
 usersRouter.post(
   '/new',
   fileUploader.single('profileImage'),
